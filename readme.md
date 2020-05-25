@@ -38,7 +38,9 @@ Personal Blog via FastAPI.
 | api/get_url_info | POST | url | x | na |
 
 ## ToDo
-- [x] 前后台联通
+- [x] 用户模块及认证模块完成 2020-05-17
+- [x] 后台API调通 2020-05-20
+- [x] 前后台联通 2020-05-24
 - [ ] 评论模块与反馈模块
 - [ ] 动态模块
 - [ ] 专题模块
