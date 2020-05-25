@@ -1,3 +1,27 @@
+# Frodo
+Personal Blog via FastAPI.
+## Overview
+2019年初开始，`Fastapi` 差不多成为了python届的网红，这个号称使用了异步、最快、集各大框架之有点于一身的框架需要实践检验。 不得不说他的文档写的很迷人，除了名字中体现的性能优势外，他集合了`Flask`, `Django` 中的很多特点，又直接以restful时代下的`OpenAPI`为默认接口标准。自带集成`swagger-docs` 不论是前端或是后端调试起来都很方便。
+
+言归正传，`Frodo`是一个使用了python异步生态开发的个人博客，使用的技术栈如下：
+- Web框架：fastapi
+- ORM: sqlalchemy + 异步 databases (FastAPI 推荐做法)
+- KV数据库: aioredis
+- 模板: Mako/FastAPI-Mako
+- python类型检查: pydantic
+
+管理后台界面参考使用 [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
+
+## 原型
+项目的原型是根据dongweiming的项目 [lyana](https://github.com/dongweiming/lyanna) 修改完成，参考了大量的设计模式和架构。只是将其中使用到的`Sanic`和`tortoise`部分替换为fastapi的模式。
+
+在此特向原作者感谢，这是一个十分有趣且意义十足的学习过程。
+
+修改的思路:
+- 抽取出数据组织形式和前后端API
+- 重写后台管理界面API
+- 重写前端模板API
+  
 ## API
 | url | method | params | response | info|
 |  --- | --- | --- | --- | --- |
@@ -13,4 +37,9 @@
 | api/user/info | GET | user (token)| user{'name', 'avartar'} | 相当于current_user|
 | api/get_url_info | POST | url | x | na |
 
-## FrontEnd Path
+## ToDo
+- [x] 前后台联通
+- [ ] 评论模块与反馈模块
+- [ ] 动态模块
+- [ ] 专题模块
+- [ ] 文档和心得
