@@ -1,0 +1,68 @@
+<%! from config import BLOG_URL, USE_YAML, AttrDict %>
+<%inherit file="/base.html" />
+<%namespace name="utils" file="/utils.html"/>
+
+<%def name="doc_head()">
+<link rel="stylesheet" href="${ request.url_for('static', path='css/index.min.css') } ">
+<script type="application/ld+json">
+ {
+   "@context": "https://schema.org",
+   "@type": "WebSite",
+   "url": "${ BLOG_URL }",
+   "potentialAction": {
+     "@type": "SearchAction",
+     "target": "${ BLOG_URL }/search?q={search_term_string}",
+     "query-input": "required name=search_term_string"
+   }
+ }
+</script>
+</%def>
+
+<%def name="content()">
+  <div class="${ 'post-list' if USE_YAML else ''}">
+    <div class="recent-posts">
+      % for post in paginatior.items:
+      <article class="recent-post-item">
+        <a class="title" href="${ post.url }"><h2>${ post.title }</h2></a>
+          <div class="post-meta">
+            <time class="time" datetime="${ post.created_at.strftime('%Y-%m-%dT%H:%M:%S.%fZ') }">
+              ${ post.created_at.strftime('%Y-%m-%d')  }
+            </time>
+            <span class="slash">/</span>
+
+            <ul class="index-tag-list">
+              % for tag in post.tags:
+                <li class="index-tag-list-item"><a class="index-tag-list-link" href="${ tag.url }">${ tag.name }</a></li>
+              % endfor
+            </ul>
+          </div>
+            <div class="post-excerpt">
+              <p>${ post.excerpt }</p>
+            </div>
+
+          <a class="more" href="${ post.url }"> 阅读全文 〉</a>
+      </article>
+      % endfor
+    </div>
+  </div>
+
+  % if USE_YAML:
+  <aside id="sidebar">
+    % for partial in request.state.partials:
+      <% partial = AttrDict(partial)  %>
+      <%include file="/partials/sidebar/${ partial.name }.html" args="partial=partial"/>
+      <hr>
+    % endfor
+  </aside>
+  % endif
+</%def>
+
+<%def name="pagination()">
+${ utils.pagination('blog.page', paginatior) }
+</%def>
+
+<%def name="bottom_script()">
+% if USE_YAML:
+  <script src="${ request.url_for('static', path='dist/blog/index.js')}"></script>
+% endif
+</%def>

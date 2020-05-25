@@ -1,0 +1,75 @@
+<%! from config import SITE_NAV_MENUS, SITE_TITLE, GOOGLE_ANALYTICS, BEIAN_ID, DB_URL%>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
+    <title>${ self.title() }</title>
+    ${ self.doc_head() }
+  </head>
+    <header>
+      <title>test</title>
+    </header>
+    <body>
+      <div class="nav-container">
+        <nav class="home-menu pure-menu pure-menu-horizontal">
+          <a class="pure-menu-heading" href="/">
+            <span class="title">${ SITE_TITLE }</span>
+          </a>
+  
+          <ul class="pure-menu-list clearfix">
+            % for menu in SITE_NAV_MENUS:
+            <%
+              endpoint_or_url, name, *others = menu
+              url = request.url_for(endpoint_or_url.split('.')[-1]) if '.' in endpoint_or_url and 'http' not in endpoint_or_url else endpoint_or_url
+            %>
+              <li class="pure-menu-item ${ 'actived' if request.url == url else ''  }">
+                <a href="${ url }" class="pure-menu-link"
+                  % if len(others) > 1:
+                  style="color: ${ others[1] }"
+                  % endif
+                >
+                  % if others:
+                  <i class="iconfont icon-${ others[0] }"></i>
+                  % endif
+                  ${ name }
+                </a>
+              </li>
+            % endfor
+          </ul>
+        </nav>
+      </div>
+  
+      <div class="container" id="content-outer">
+        <div class="inner" id="content-inner">
+          ${ self.content() }
+        </div>
+        ${ self.pagination() }
+      </div>
+      
+      <footer class="footer text-center">
+        <div id="bottom-inner">
+          <a class="bottom-item" href="/">首页</a> |
+          <a class="bottom-item" href="https://github.com/dongweiming/lyanna" target="_blank">GitHub</a> |
+          Powered by <a class="href-item" href="https://fastapi.tiangolo.com" target="_blank">FastAPI</a>、<a class="href-item" href="https://github.com/LouisYZK/fastapi-mako" target="_blank">FastAPIMako</a> | Theme inspired by <a class="href-item" href="https://github.com/KevinOfNeu/hexo-theme-xoxo" target="_blank">hexo-theme-xoxo</a>
+          % if BEIAN_ID:
+          | <span class="href-item">${ BEIAN_ID }</span>
+          % endif
+        </div>
+      </footer>
+      ${ self.bottom_script() }
+    </body>
+</html>
+
+<%def name="title()">${ SITE_TITLE }</%def>
+<%def name="more_header()"></%def>
+
+<%def name="doc_head()">
+  <link rel="stylesheet" href="${ app.url_path_for('static', path='css/main.min.css') } ">
+  ${self.more_header() | n}
+</%def>
+<%def name="bottom_script()">
+</%def>
+<%def name="content()"></%def>
+<%def name="pagination()">
+</%def>

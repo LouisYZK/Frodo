@@ -1,0 +1,105 @@
+.post-container, #related, #reactions-container {
+  max-width: 880px;
+  margin: auto;
+  padding: 10px 20px;
+}
+
+.social-sharer {
+    max-width: 880px;
+    margin: 1rem auto;
+    text-align: center;
+}
+
+.post-content pre, .post-content code {
+    font-family: 'Roboto Mono',Monaco,courier,monospace;
+    font-size: 13px;
+}
+
+.post-content figure {
+    background: #3C4556;
+    padding: 0 10px;
+    border-radius: 2px;
+    margin: 20px 0;
+    overflow: auto;
+    position: relative;
+}
+
+.post-content figure:after {
+    content: attr(data-lang);
+    position: absolute;
+    top: 0;
+    right: 0;
+    color: #ccc;
+    text-align: right;
+    font-size: .8em;
+    padding: 5px 10px 0;
+    line-height: 15px;
+    height: 15px;
+    font-weight: 500;
+}
+.hljs {
+  background: #3C4556 !important;
+}
+
+#related {
+    max-width: 800px;
+}
+
+@media screen and (max-width: 576px) {
+  .nav-container .home-menu {
+    padding: 5px;
+  }
+}
+
+.card-right {
+  text-align: right;
+}
+
+.author, .author img {
+  display: inline-block;
+}
+
+.author img {
+  height: 22px;
+  width: 22px;
+  transform: translateY(-1px);
+  display: inline-block;
+  vertical-align: middle;
+  border-radius: 100%;
+}
+.tribute-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: auto;
+  max-height: 300px;
+  max-width: 500px;
+  overflow: auto;
+  display: block;
+  z-index: 999999; }
+  .tribute-container ul {
+    margin-top: .5rem;
+    margin-left: 1rem;
+    padding: 0;
+    list-style: none;
+    background: #fff;
+    color: #000;
+    border: 1px solid #CFD8DC;
+    font-size: 14px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+  }
+  .tribute-container li {
+    padding: 0 5px;
+    font-weight: 300;
+    margin: 0;
+    cursor: pointer; }
+  .tribute-container li.highlight {
+    background: #2196F3;
+      color: #fff; }
+    .tribute-container li span {
+      font-weight: bold; }
+    .tribute-container li.no-match {
+      cursor: default; }
+  .tribute-container .menu-highlighted {
+    font-weight: bold; }
