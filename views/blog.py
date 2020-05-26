@@ -77,7 +77,7 @@ async def archive(request: Request, year):
 @mako.template('index.html')
 async def index(request: Request, page=1):
     start = (page - 1) * config.PER_PAGE
-    posts = await Post.get_all()
+    posts = await Post.get_all(with_page=False)
     total = len(posts)
     posts = posts[start: start + config.PER_PAGE]
     post_objs = [await Post(**p).to_async_dict(**p) for p in posts]
@@ -92,7 +92,7 @@ async def index(request: Request, page=1):
 async def page(request: Request, ident: int =1):
     page = ident
     start = (page - 1) * config.PER_PAGE
-    posts = await Post.get_all()
+    posts = await Post.get_all(with_page=False)
     total = len(posts)
     posts = posts[start: start + config.PER_PAGE]
     post_objs = [await Post(**p).to_async_dict(**p) for p in posts]

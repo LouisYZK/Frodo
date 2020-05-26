@@ -260,7 +260,11 @@ class Post(BaseModel):
 
     @classmethod
     async def get_all(cls, with_page=True):
-        posts = await Post.async_filter(status=Post.STATUS_ONLINE)
+        if with_page:
+            posts = await Post.async_filter(status=Post.STATUS_ONLINE)
+        else:
+            posts = await Post.async_filter(status=Post.STATUS_ONLINE,
+                                            type=Post.TYPE_ARTICLE)
         return sorted(posts, key=lambda p: p['id'], reverse=True)
 
     @property
