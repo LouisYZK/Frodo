@@ -111,7 +111,7 @@ async def page_(request: Request, ident):
     post.author = config.AttrDict(post.author)
     return {'post': post }
 
-@router.get('/post/{ident}', name='page')
+@router.get('/post/{ident}', name='post')
 @mako.template('post.html')
 async def post(request: Request, ident):
     if isinstance(ident, str):
@@ -120,4 +120,7 @@ async def post(request: Request, ident):
         raise HTMLResponse(status_code=404)
     post = await Post(**post).to_async_dict(**post)
     post.author = config.AttrDict(post.author)
-    return {'post': post }
+
+    github_user = request.session.get('user')
+    print(github_user)
+    return {'post': post , 'github_user': github_user}

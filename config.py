@@ -13,6 +13,12 @@ config.read(config_dir)
 ACCESS_TOKEN_EXPIRE_MINUTES = config.get('security', 'access_token_expire_minutes')
 JWT_ALGORITHM = config.get('security', 'jwt_algorithm')
 
+OAUTH_REDIRECT_PATH = config.get('github', 'oauth_redirect_path')
+REDIRECT_URI = config.get('github', 'redirect_uri')
+CLIENT_ID = config.get('github', 'client_id')
+CLIENT_SECRET = config.get('github', 'client_secret')
+
+
 DB_URL = os.getenv('DB_URL',
             config.get('database', 'db_url'))
 REDIS_URL = os.getenv('REDIS_URL', 

@@ -5,6 +5,7 @@ from fastapi import FastAPI, Depends, HTTPException, Request, Form
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
 from starlette.datastructures import Headers
+from starlette.middleware.sessions import SessionMiddleware
 import typing
 from typing import Optional
 from models import schemas, user
@@ -17,8 +18,9 @@ app = FastAPI()
 app.__name__ = 'fast_blog'
 mako.init_app(app)
 
-app.mount('/static/', StaticFiles(directory='static'), name='static')
 
+app.mount('/static/', StaticFiles(directory='static'), name='static')
+app.add_middleware(SessionMiddleware, secret_key='fast')
 app.include_router(
     admin.router,
     prefix='/api'

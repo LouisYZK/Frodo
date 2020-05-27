@@ -74,6 +74,24 @@ class GithubUser(BaseModel):
     link = Column(String(100), default='')
 
 
+async def create_github_user(user_info):
+    user = await GithubUser.async_first(gid=user_info['id'])
+    kwargs = {
+        'gid': user_info.get('id'),
+        'link': user_info.get('html_url', ''),
+        'picture': user_info.get('avatar_url', ''),
+        'username': user_info.get('login', ''),
+        'email': user_info.get('email') if user_info.get('email') is not None else ''
+    }
+    if user:
+        id = user.get('id')
+        await GithubUser.asave(id=id, **kwargs)
+    else:
+        await GithubUser.acreate(**kwargs)
+    # return await GithubUser(**kwargs).to_async_dict(**kwargs)
+    return kwargs
+
+
 if __name__ == "__main__":
     import sys
     print('test')     

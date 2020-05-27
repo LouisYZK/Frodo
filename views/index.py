@@ -1,8 +1,11 @@
 import re
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import JSONResponse
+from starlette.responses import RedirectResponse
 from models import Post
-from ext import mako
+from models.user import create_github_user
+from ext import mako, GithubClient
+import config
 
 
 router = APIRouter()
@@ -28,3 +31,38 @@ async def search_json(request: Request):
     dct = await _search_json(request)
     return JSONResponse(dct)
     
+@router.get('/oauth/post/{post_id}')
+async def oauth_in_post(request: Request, post_id=None):
+    if post_id is None:
+        url = '/'
+    else:
+        url = request.url_for('post', ident=post_id)
+    if hasattr(request.state, 'user'):
+        return RedirectResponse(url)
+    else:
+        client = GithubClient()
+        return RedirectResponse(client.auth_url)
+    
+
+
+@router.get('/oauth')
+async def oauth(request: Request):
+    if 'error' in str(request.url):
+        raise HTTPException(status_code=400)
+    client = GithubClient()
+    rv = await client.get_access_token(code=request.query_params.get('code'))
+    token = rv.get('access_token', '')
+    try:
+        user_info = await client.user_info(token)
+    except:
+        return RedirectResponse(config.OAUTH_REDIRECT_PATH)
+
+    rv = await create_github_user(user_info)
+    request.session['user'] = rv
+    headers = dict()
+    for key, value in rv.items():
+        if not isinstance(value, str):
+            value = str(value)
+        headers.update(key=value)
+    refer = request.headers['referer']
+    return RedirectResponse(refer, headers=headers)

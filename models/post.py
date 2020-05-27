@@ -18,7 +18,7 @@ from .base import Base, BaseModel, ModelMeta
 # from .mc import cache, clear_mc
 from .user import User
 from .utils import trunc_utf8
-# from .comment import CommentMixin
+from .comment import CommentMixin
 # from .react import ReactMixin
 from .toc import TocMixin
 from . import schemas
@@ -170,7 +170,7 @@ toc_md = mistune.Markdown(renderer=toc)
    
 
 
-class Post(BaseModel):
+class Post(BaseModel, CommentMixin):
     STATUSES = (
         STATUS_UNPUBLISHED,
         STATUS_ONLINE

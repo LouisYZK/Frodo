@@ -208,7 +208,6 @@ class BaseModel(Base, metaclass=ModelMeta):
             query = table.update().\
                           where(table.c.id==id).\
                           values(**kwargs)
-            print(kwargs)
             rv = await db.execute(query=query)
         return rv
 
