@@ -85,7 +85,9 @@
   % endfor
 </ul>
 % endif
-${ utils.render_comment_container(post, 10, github_user, liked_comment_ids) }
+
+${ utils.render_comment_container(post, 10, github_user, liked_comment_ids=[]) }
+
 <div class="copyright">
     <span>本作品采用</span>
     <a href="https://creativecommons.org/licenses/by/4.0/">知识共享署名 4.0 国际许可协议</a>
@@ -100,5 +102,11 @@ ${ utils.render_comment_container(post, 10, github_user, liked_comment_ids) }
 </%def>
 
 <%def name="title()">${ post.title } - ${ SITE_TITLE }</%def>
-
+<%def name="bottom_script()">
+  <script id="suggesters" type="application/json">
+    ${ json.dumps([{'key': name, 'value': name} for name in set([c.user.username for c in post.comments])]) | n }
+  </script>
+  <script src="${ request.url_for('static', path='dist/blog/blog.js')}"></script>
+  <script src="${ request.url_for('static', path='js/github-widget.js')}"></script>
+</%def>
 

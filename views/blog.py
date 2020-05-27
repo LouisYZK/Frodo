@@ -122,5 +122,4 @@ async def post(request: Request, ident):
     post.author = config.AttrDict(post.author)
 
     github_user = request.session.get('user')
-    print(github_user)
     return {'post': post , 'github_user': github_user}

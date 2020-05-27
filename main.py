@@ -9,7 +9,7 @@ from starlette.middleware.sessions import SessionMiddleware
 import typing
 from typing import Optional
 from models import schemas, user
-from views import admin, index, blog
+from views import admin, index, blog, comment
 from ext import mako, oauth2_scheme
 import config
 
@@ -27,6 +27,7 @@ app.include_router(
 )
 app.include_router(index.router)
 app.include_router(blog.router)
+app.include_router(comment.router, prefix='/j')
 
 @app.get('/admin')
 @mako.template('admin.html')
