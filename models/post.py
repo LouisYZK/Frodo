@@ -199,7 +199,6 @@ class Post(BaseModel, CommentMixin):
         obj_id = await super().acreate(**kwargs)
         kwargs['id'] = obj_id
         if tags:
-            print('tags', tags)
             try:
                 await PostTag.update_multi(obj_id, tags)
             except:
@@ -265,7 +264,7 @@ class Post(BaseModel, CommentMixin):
         else:
             posts = await Post.async_filter(status=Post.STATUS_ONLINE,
                                             type=Post.TYPE_ARTICLE)
-        return sorted(posts, key=lambda p: p['id'], reverse=True)
+        return sorted(posts, key=lambda p: p['created_at'], reverse=True)
 
     @property
     def url(self):

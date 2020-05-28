@@ -54,13 +54,13 @@ async def tag(request: Request, tag_id):
 async def archives(request: Request):
     post_data = await Post.async_filter(status=Post.STATUS_ONLINE)
     post_obj = [Post(**p) for p in post_data]
-    rv = {
-        year: list(items)
-        for year, items in groupby(
-            post_obj,
-            lambda p: p.created_at.year
-        )
-    }
+    rv = dict()
+
+    for year, items in groupby(post_obj, lambda x: x.created_at.year):
+        if year in rv:
+            rv[year].extend(list(items))
+        else:
+            rv[year] = list(items)
     archives = sorted(rv.items(), key=lambda x: x[0], reverse=True)
     return {'archives': archives}
 
@@ -114,6 +114,7 @@ async def page_(request: Request, ident):
 @router.get('/post/{ident}', name='post')
 @mako.template('post.html')
 async def post(request: Request, ident):
+    ident = ident.replace('+', ' ')
     if isinstance(ident, str):
         post = await Post.get_by_slug(ident)
     if not post:
