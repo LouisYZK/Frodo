@@ -175,7 +175,7 @@ class BaseModel(Base, metaclass=ModelMeta):
             if limit:
                 query = query.limit(limit)
             if offset:
-                query = query.offset(offser)
+                query = query.offset(offset)
             res = await db.fetch_all(query)
         return cls.to_dict(res)
         

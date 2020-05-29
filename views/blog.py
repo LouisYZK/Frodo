@@ -54,6 +54,7 @@ async def tag(request: Request, tag_id):
 async def archives(request: Request):
     post_data = await Post.async_filter(status=Post.STATUS_ONLINE)
     post_obj = [Post(**p) for p in post_data]
+    post_obj = sorted(post_obj, key=lambda p: p.created_at, reverse=True)
     rv = dict()
 
     for year, items in groupby(post_obj, lambda x: x.created_at.year):

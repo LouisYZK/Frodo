@@ -135,7 +135,7 @@ async def create_post(title: str = Form(...),
 @router.get('/posts')
 async def list_posts(limit: int=config.PER_PAGE, page: int=1, with_tag: int = 0):
     offset = (page - 1) * limit
-
+    total = len(await Post.async_all())
     _posts = await Post.async_all(limit=limit, offset=offset)
     _posts = sorted(_posts, key=lambda x: -x['id'])
     posts = []
@@ -149,7 +149,7 @@ async def list_posts(limit: int=config.PER_PAGE, page: int=1, with_tag: int = 0)
             tags = await post.tags
             dct['tags'] = [t.name for t in tags]
         posts.append(dct)
-    return {'items': posts, 'total': len(posts)}
+    return {'items': posts, 'total': total}
 
 
 @router.delete('/post/{post_id}')
