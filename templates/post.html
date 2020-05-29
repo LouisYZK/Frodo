@@ -111,8 +111,22 @@ ${ utils.render_comment_container(post, 10, github_user, liked_comment_ids) }
   </script>
   <script src="${ request.url_for('static', path='dist/blog/blog.js')}"></script>
   <script src="${ request.url_for('static', path='js/github-widget.js')}"></script>
-  <script type="text/javascript"
-src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      extensions: ["tex2jax.js"],
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        <!--$表示行内元素，$$表示块状元素 -->
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+      },
+      "HTML-CSS": { availableFonts: ["TeX"] }
+    });
+  </script>
+  <script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
 </script>
+
 </%def>
 

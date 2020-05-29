@@ -47,14 +47,16 @@ class ReactItem(BaseModel):
                               target_kind=target_kind)
         return rv
 
-    async def delete(self, using_db=None):
-        rv = await super().delete(using_db=using_db)
-        stat = await ReactStats.get_by_target(self.target_id, self.target_kind)
-        react_name = next((name for name, type in self.REACTION_MAP.items()
-                           if type == self.reaction_type), None)
+    @classmethod
+    async def adelete(cls, **kwargs):
+        rv = await super().adelete(**kwargs)
+        stat_data = await ReactStats.get_by_target(
+                        kwargs.get('target_id'), kwargs.get('target_kind'))
+        react_name = next((name for name, type in cls.REACTION_MAP.items()
+                           if type == kwargs.get('reaction_type')), None)
         field = f'{react_name}_count'
-        setattr(stat, field, getattr(stat, field) - 1)
-        await stat.save()
+        stat_data.update({field :stat_data.get(field) - 1})
+        await ReactStats.asave(**stat_data)
         return rv
 
 
@@ -91,13 +93,17 @@ class ReactMixin:
         else:
             item.update(reaction_type=reaction_type)
             await ReactItem.asave(**item)
+            stat_data = await ReactStats.get_by_target(item.target_id, item.target_kind)
+            field = reaction_type
+            stat_data.update({field :stat_data.get(field) + 1})
+            await ReactStats.asave(**stat_data)
 
         return bool(item)
 
     async def cancel_reaction(self, user_id):
         item = await ReactItem.get_reaction_item(user_id, self.id, self.kind)
         if item:
-            await item.delete()
+            await ReactItem.adelete(**item)
         return True
 
     @property

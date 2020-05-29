@@ -120,4 +120,16 @@ async def add_comment_like(request: Request, comment_id):
     comment = Comment(**comment)
     rv = await comment.add_reaction(user['gid'], ReactItem.K_LOVE)
     return { 'r': int(not rv), 'n_likes': await comment.n_likes}
+
+@router.delete('/comment/{comment_id}/like')
+async def delete_comment_like(request: Request, comment_id):
+    user = await retrieve_user(request)
+    if not user:
+        return {'r': 403, 'msg': 'Login required.'}
+    comment = await Comment.async_first(id=comment_id)
+    if not comment:
+        return {'r': 1, 'msg': 'Comment not exist'}
+    comment = Comment(**comment)
+    rv = await comment.cancel_reaction(user['gid'])
+    return { 'r': int(not rv), 'n_likes': await comment.n_likes}
     

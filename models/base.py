@@ -194,8 +194,11 @@ class BaseModel(Base, metaclass=ModelMeta):
         filters = []
         for key, val in kwargs.items():
             filters.append(getattr(table.c, key) == val)
-        query = table.delete().where(*filters)
         async with AioDataBase() as db:
+            if len(filters) > 1:
+                query = table.delete().where(and_(*filters))
+            else:
+                query = table.delete().where(*filters)
             rv = await db.execute(query=query)
         return rv
 
