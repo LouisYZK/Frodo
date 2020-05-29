@@ -3,7 +3,7 @@ from itertools import groupby
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import HTMLResponse
 from ext import mako
-from models import Post, Tag, PostTag
+from models import Post, Tag, PostTag, ReactItem
 from models import schemas
 from models.utils import Pagination
 import config
@@ -117,11 +117,22 @@ async def page_(request: Request, ident):
 async def post(request: Request, ident):
     ident = ident.replace('+', ' ')
     if isinstance(ident, str):
-        post = await Post.get_by_slug(ident)
-    if not post:
+        post_data = await Post.get_by_slug(ident)
+    if not post_data:
         raise HTMLResponse(status_code=404)
-    post = await Post(**post).to_async_dict(**post)
-    post.author = config.AttrDict(post.author)
+    post = Post(**post_data)
 
+    stats = await post.stats
+    reaction_type = None
+    liked_comment_ids = []
     github_user = request.session.get('user')
-    return {'post': post , 'github_user': github_user}
+
+    if github_user:
+        reaction_type = await post.get_reaction_type(github_user['gid'])
+        liked_comment_ids = await post.comment_ids_liked_by(github_user['gid'])
+
+    post = await post.to_async_dict(**post_data)
+    post.author = config.AttrDict(post.author)
+    return {'post': post , 'github_user': github_user, 
+            'stats': stats, 'reaction_type': reaction_type,
+            'liked_comment_ids': liked_comment_ids}

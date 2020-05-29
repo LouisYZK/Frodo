@@ -6,12 +6,13 @@ from sqlalchemy import Column, String, Integer, DateTime, func
 
 from .base import BaseModel
 from .user import GithubUser
+from .react import ReactMixin, ReactItem, ReactStats
 import config
 
 markdown = mistune.Markdown()
 
 
-class Comment(BaseModel):
+class Comment(BaseModel, ReactMixin):
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     github_id = Column(Integer())
@@ -48,7 +49,9 @@ class Comment(BaseModel):
 
     @property
     async def n_likes(self):
-        return 1
+        stats = await self.stats
+        return stats.love_count
+        
 
 
 class CommentMixin:
@@ -77,4 +80,12 @@ class CommentMixin:
     async def n_comments(self):
         return len(await Comment.async_filter(post_id=self.id))
 
+    async def comment_ids_liked_by(self, user_id):
+        cids = [c.id for c in await self.comments]
+        if not cids:
+            return []
+        react_items = await ReactItem.async_filter(target_kind=config.K_COMMENT,
+                                            user_id=user_id)
+        react_ids = [item['target_id'] for item in react_items if item['target_id'] in cids]
+        return react_ids
     

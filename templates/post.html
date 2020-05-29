@@ -85,8 +85,11 @@
   % endfor
 </ul>
 % endif
+<div id="reactions-container">
+  ${ utils.render_react_container(stats, reaction_type) }
+</div>
 
-${ utils.render_comment_container(post, 10, github_user, liked_comment_ids=[]) }
+${ utils.render_comment_container(post, 10, github_user, liked_comment_ids) }
 
 <div class="copyright">
     <span>本作品采用</span>
@@ -108,5 +111,8 @@ ${ utils.render_comment_container(post, 10, github_user, liked_comment_ids=[]) }
   </script>
   <script src="${ request.url_for('static', path='dist/blog/blog.js')}"></script>
   <script src="${ request.url_for('static', path='js/github-widget.js')}"></script>
+  <script type="text/javascript"
+src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
 </%def>
 
