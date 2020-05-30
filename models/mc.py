@@ -1,0 +1,72 @@
+import re
+import inspect
+import asyncio
+from functools import wraps
+from pickle import dumps, loads
+
+import aioredis
+
+from .base import get_redis
+from .utils import Empty
+import config
+
+def gen_key_factory(key_pattern: str, arg_names: list, kwonlydefaults: dict):
+    def gen_key(*args, **kwargs):
+        kw = kwonlydefaults.copy() if kwonlydefaults is not None else {}
+        kw.update(zip(arg_names, args))
+        kw.update(kwargs)
+        if callable(key_pattern):
+            key = key_pattern(*[kw[name] for name in arg_names])
+        else:
+            key = key_pattern.format(*[kw[n] for n in arg_names], **kw)
+        return key and key.replace(' ', '_'), kw
+    return gen_key
+
+
+def cache(key_pattern):
+    def deco(f):
+        rv = inspect.getfullargspec(f)
+        arg_names, kwonlydefaults = rv.args, rv.kwonlydefaults
+        gen_key = gen_key_factory(key_pattern, arg_names, kwonlydefaults)
+        
+        @wraps(f)
+        async def _(*a, **kw):
+            redis = await get_redis()
+            key, args = gen_key(*a, **kw)
+            if not key:
+                return f(*a, **kw)
+            r = await redis.get(key)
+            
+            if r is None:
+                r = await f(*a, **kw)
+                if r is not None and not isinstance(r, Empty):
+                    r = dumps(r)
+                    await redis.set(key, r)
+            try:
+                r = loads(r)
+            except TypeError:
+                ...
+            return r
+        _.original_function = f
+        return _
+    return deco
+
+
+async def clear_mc(*keys):
+    redis = await get_redis()
+    assert redis is not None
+    await asyncio.gather(*[redis.delete(k) for k in keys],
+                        return_exceptions=True)
+
+if __name__ == "__main__":
+    async def in_db(id):
+        print('in db')
+        return f'res {id}'
+
+    KEY = 'TEST %s'
+
+    @cache(KEY % '{id}')
+    async def get_post(id):
+        rv = await in_db(id)
+        return rv
+
