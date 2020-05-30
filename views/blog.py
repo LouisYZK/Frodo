@@ -116,7 +116,9 @@ async def page_(request: Request, ident):
 @mako.template('post.html')
 async def post(request: Request, ident):
     ident = ident.replace('+', ' ')
-    if isinstance(ident, str):
+    if ident.isdigit():
+        post_data = await Post.async_first(id=int(ident))
+    else:
         post_data = await Post.get_by_slug(ident)
     if not post_data:
         raise HTMLResponse(status_code=404)
