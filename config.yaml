@@ -15,13 +15,13 @@ partials:
     - email: 'example'
     # - wechat: 'wechat-qrcode.jpg'
     # - weixingongzhonghao: 'wechat-subscription-account-qrcode.png'
-  # - name: tagcloud
-  #   title: 标签云
-  #   count: 20
+  - name: tagcloud
+    title: 标签云
+    count: 20
   - name: html
-    title: 自定义HTML
+    title: Status
     body: |
-      <p>Hello <strong>World</strong>!!</p>
+      <p>疯狂 <strong>打码中</strong>!!</p>
   # - name: latest_comments
   #   title: 最新评论
   #   count: 5

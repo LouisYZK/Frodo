@@ -400,7 +400,7 @@ class PostTag(BaseModel):
         for tag_name in need_del:
             rv = await Tag.get_or_create(name=tag_name)
             if isinstance(rv, int): need_del_tags_id.append(rv)
-            else: need_del_tags_id.append(rv['id'])
+            else: need_del_tags_id.add(rv['id'])
 
         if need_del_tags_id:
             for id in list(need_del_tags_id):

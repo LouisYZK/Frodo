@@ -1,3 +1,4 @@
+import random
 from collections import Counter
 from itertools import groupby
 from fastapi import APIRouter, Request, HTTPException
@@ -91,6 +92,14 @@ async def index(request: Request, page=1):
     post_objs = [await Post(**p).to_async_dict(**p) for p in posts]
     paginatior = Pagination(page, config.PER_PAGE, total, post_objs)
     json = {'paginatior': paginatior}
+
+    for partial in config.partials:
+        partial = config.AttrDict(partial)
+        if partial.name == 'tagcloud':
+            tags = await _tags()
+            random.shuffle(tags)
+            json.update({'tags': tags})
+            
     return json
     
 
@@ -106,6 +115,13 @@ async def page(request: Request, ident: int =1):
     post_objs = [await Post(**p).to_async_dict(**p) for p in posts]
     paginatior = Pagination(page, config.PER_PAGE, total, post_objs)
     json = {'paginatior': paginatior}
+    for partial in config.partials:
+        partial = config.AttrDict(partial)
+        if partial.name == 'tagcloud':
+            tags = await _tags()
+            random.shuffle(tags)
+            json.update({'tags': tags})
+    
     return json
 
 @router.get('/page/{ident}', name='page')
@@ -124,7 +140,7 @@ async def page_(request: Request, ident):
 async def post(request: Request, ident):
     ident = ident.replace('+', ' ')
     if ident.isdigit():
-        post_data = await Post.cache(id=int(ident))
+        post_data = await Post.cache(ident=int(ident))
     else:
         post_data = await Post.get_by_slug(ident)
     if not post_data:
