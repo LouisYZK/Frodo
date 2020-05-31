@@ -44,8 +44,8 @@ Personal Blog via FastAPI.
 - [x] 评论模块（Github认证） 2020-05-27
 - [x] Hexo文章批量迁移 2020-05-28
 - [x] 反馈模块 2020-05-29
-- [ ] 加入缓存（统一用redis）
+- [x] 加入缓存（统一用redis) 2020-05-31 Changed a lot
+- [ ] 阅读量 (require: cached)
 - [ ] 动态模块 (Activity)
-- [ ] 专题模块
-- [ ] 更换前端
-- [ ] 文档和心得
+- [ ] 更换前端 (require: Modify Hexo Theme to Mako)
+- [ ] 文档和心得 
