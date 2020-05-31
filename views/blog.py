@@ -30,12 +30,14 @@ async def _tags():
     
 @router.get('/tags', name='tags', response_class=HTMLResponse)
 @mako.template('tags.html')
+@cache(MC_KEY_TAGS)
 async def tags(request: Request):
     tags = await _tags()
     return {'tags': sorted(tags, key=lambda x: x[1], reverse=True)}
 
 
 @router.get('/tag/{tag_id}', name='tags')
+@cache(MC_KEY_TAG % '{tag_id}')
 @mako.template('tag.html')
 async def tag(request: Request, tag_id):
     tag = await Tag.async_first(id=tag_id)

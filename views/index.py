@@ -18,7 +18,7 @@ async def search(request: Request, q: str = ''):
     return {'q': q}
 
 async def _search_json(request: Request):
-    posts = await Post.get_all()
+    posts = await Post.get_all(with_page=False)
     post_objs = [Post(**post_data) for post_data in posts]
     return [{
         'url': post.url,
@@ -48,7 +48,6 @@ async def oauth_in_post(request: Request, post_id=None):
 
 @router.get('/oauth')
 async def oauth(request: Request):
-    print(request.scope)
     if 'error' in str(request.url):
         raise HTTPException(status_code=400)
     client = GithubClient()
