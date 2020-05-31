@@ -12,6 +12,7 @@ from typing import Any
 import config
 from ext import SessionLocal, AioDataBase
 from .var import aio_databases, redis_var
+from .mc import cache, clear_mc
 
 _redis = None
 
@@ -29,6 +30,7 @@ async def get_redis():
     return _redis
 
 IGNORE_ATTRS = ['redis', 'stats']
+MC_KEY_ITEM_BY_ID = '%s:%s'
 
 
 class PropertyHolder(type):
@@ -186,12 +188,15 @@ class BaseModel(Base, metaclass=ModelMeta):
         query = table.insert()
         async with AioDataBase() as db:
             rv = await db.execute(query=query, values=kwargs)
+        obj = cls(**(await cls.async_first(id=rv)))
+        await cls.__flush__(obj)
         return rv
 
     @classmethod
     async def adelete(cls, **kwargs):
         table = cls.__table__
         filters = []
+        obj = cls(**(await cls.async_first(**kwargs)))
         for key, val in kwargs.items():
             filters.append(getattr(table.c, key) == val)
         async with AioDataBase() as db:
@@ -200,6 +205,7 @@ class BaseModel(Base, metaclass=ModelMeta):
             else:
                 query = table.delete().where(*filters)
             rv = await db.execute(query=query)
+        await cls.__flush__(obj)
         return rv
 
     @classmethod
@@ -212,12 +218,17 @@ class BaseModel(Base, metaclass=ModelMeta):
                           where(table.c.id==id).\
                           values(**kwargs)
             rv = await db.execute(query=query)
+        obj = cls(**(await cls.async_first(id=id)))
+        await cls.__flush__(obj)
         return rv
 
     @classmethod
     async def get_or_create(cls, **kwargs):
         table = cls.__table__
-        rv = await cls.async_first(**kwargs)
+        if 'id' not in kwargs:
+            rv = await cls.async_first(**kwargs)
+        else:
+            rv = await cls.cache(**kwargs)
         if not rv:
             rv = await cls.acreate(**kwargs)
             return rv
@@ -262,6 +273,30 @@ class BaseModel(Base, metaclass=ModelMeta):
     async def get_props_by_key(self, key):
         key = self.get_db_key(key)
         return await (await self.redis).get(key) or b''
+
+    @classmethod
+    @cache(MC_KEY_ITEM_BY_ID % ('{cls.__name__}', '{id}'))
+    async def cache(cls, **kwargs):
+        data = await cls.async_first(**kwargs)
+        return data
+
+    @classmethod
+    async def __flush__(cls, target):
+        await asyncio.gather(
+            clear_mc(MC_KEY_ITEM_BY_ID % (target.__class__.__name__, target.id)),
+            target.clear_mc(), return_exceptions=True
+        )
+    
+    async def clear_mc(self):
+        """In case that som obj dont have clear_mc
+        """
+        ...
+
+    @classmethod
+    async def get_multi(cls, ids):
+        return [await cls.cache(id=id) for id in ids]
+
+    
 
 if __name__ == '__main__':
     pass

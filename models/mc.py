@@ -6,9 +6,24 @@ from pickle import dumps, loads
 
 import aioredis
 
-from .base import get_redis
 from .utils import Empty
+from .var import redis_var
 import config
+
+_redis = None
+
+async def get_redis():
+    global _redis
+    if _redis is None:
+        try:
+            redis = redis_var.get()
+        except LookupError:
+            # Hack for debug mode
+            loop = asyncio.get_event_loop()
+            redis = await aioredis.create_redis_pool(
+                config.REDIS_URL, minsize=5, maxsize=20, loop=loop)
+        _redis = redis
+    return _redis
 
 def gen_key_factory(key_pattern: str, arg_names: list, kwonlydefaults: dict):
     def gen_key(*args, **kwargs):
@@ -42,8 +57,11 @@ def cache(key_pattern):
                 if r is not None and not isinstance(r, Empty):
                     r = dumps(r)
                     await redis.set(key, r)
+            else:
+                print('Get from Cache...')
             try:
                 r = loads(r)
+                
             except TypeError:
                 ...
             return r
@@ -54,6 +72,7 @@ def cache(key_pattern):
 
 async def clear_mc(*keys):
     redis = await get_redis()
+    print(f'Clear cached: {keys}')
     assert redis is not None
     await asyncio.gather(*[redis.delete(k) for k in keys],
                         return_exceptions=True)

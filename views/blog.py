@@ -5,7 +5,9 @@ from fastapi.responses import HTMLResponse
 from ext import mako
 from models import Post, Tag, PostTag, ReactItem
 from models import schemas
+from models.post import (MC_KEY_ARCHIVES, MC_KEY_ARCHIVE, MC_KEY_TAGS, MC_KEY_TAG)
 from models.utils import Pagination
+from models.mc import cache
 import config
 
 
@@ -51,6 +53,7 @@ async def tag(request: Request, tag_id):
 
 @router.get('/archives', name='archives', response_class=HTMLResponse)
 @mako.template('archives.html')
+@cache(MC_KEY_ARCHIVES)
 async def archives(request: Request):
     post_data = await Post.async_filter(status=Post.STATUS_ONLINE)
     post_obj = [Post(**p) for p in post_data]
@@ -65,8 +68,10 @@ async def archives(request: Request):
     archives = sorted(rv.items(), key=lambda x: x[0], reverse=True)
     return {'archives': archives}
 
+
 @router.get('/archives/{year}', name='archives')
 @mako.template('archives.html')
+@cache(MC_KEY_ARCHIVE % '{year}')
 async def archive(request: Request, year):
     post_data = await Post.async_filter(status=Post.STATUS_ONLINE)
     post_obj = [Post(**p) for p in post_data if p['created_at'].year == int(year)]
@@ -117,7 +122,7 @@ async def page_(request: Request, ident):
 async def post(request: Request, ident):
     ident = ident.replace('+', ' ')
     if ident.isdigit():
-        post_data = await Post.async_first(id=int(ident))
+        post_data = await Post.cache(id=int(ident))
     else:
         post_data = await Post.get_by_slug(ident)
     if not post_data:

@@ -41,7 +41,7 @@ class Post(BaseModel):
     id: int
     title: str
     slug: str
-    summary: str
+    summary: str = None
     content: str
     can_comment: bool
     author_id: int

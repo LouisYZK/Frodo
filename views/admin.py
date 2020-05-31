@@ -5,7 +5,7 @@ from jwt import PyJWTError
 from datetime import datetime
 from pathlib import Path
 from fastapi import APIRouter, Request, Depends, HTTPException, status, Form, UploadFile, File
-from typing import List
+from typing import List, Optional, Any
 from ext import mako, oauth2_scheme
 from models import schemas, forms
 from models.user import User, create_user, modify_user, search_user_by_name
@@ -65,7 +65,8 @@ async def current_user(token: str=Depends(oauth2_scheme)):
 
 @router.get('/user/{user_id}/')
 async def get_user_by_id(request: Request, user_id: int, token=Depends(oauth2_scheme)):
-    user = await User.async_first(id=user_id)
+    # user = await User.async_first(id=user_id)
+    user = await User.cache(id=user_id)
     if not user:
         raise HTTPException(404, 'not such user!')
     avatar = user.get('avatar', None)
@@ -175,7 +176,7 @@ async def get_post_by_id(post_id: int, token=Depends(oauth2_scheme)):
 async def modfiy_post(post_id: int,
                       title: str = Form(...),
                       slug: str = Form(...),
-                      summary: str = Form(...),
+                      summary: str = Form(None),
                       content = Form(...),
                       type: int = Form(...),
                       can_comment: bool = Form(...),

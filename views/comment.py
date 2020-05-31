@@ -30,7 +30,7 @@ async def retrieve_user(request: Request) -> dict:
     return user
 
 async def retrieve_post(post_id) -> dict:
-    p_data = await Post.async_first(id=post_id)
+    p_data = await Post.cache(ident=post_id)
     if not p_data:
         return None
     return p_data
@@ -59,7 +59,7 @@ async def create_comment(request: Request,
 @router.get('/post/{post_id}/comments')
 async def comments(request: Request, post_id,
                    page: int=1, per_page: int=3):
-    post_data = await Post.async_first(id=post_id)
+    post_data = await Post.cache(id=post_id)
     if not post_data:
         return {'r': 1, 'msg': 'Post not exist'}
     
@@ -114,7 +114,7 @@ async def add_comment_like(request: Request, comment_id):
     user = await retrieve_user(request)
     if not user:
         return {'r': 403, 'msg': 'Login required.'}
-    comment = await Comment.async_first(id=comment_id)
+    comment = await Comment.cache(id=comment_id)
     if not comment:
         return {'r': 1, 'msg': 'Comment not exist'}
     comment = Comment(**comment)
@@ -126,7 +126,7 @@ async def delete_comment_like(request: Request, comment_id):
     user = await retrieve_user(request)
     if not user:
         return {'r': 403, 'msg': 'Login required.'}
-    comment = await Comment.async_first(id=comment_id)
+    comment = await Comment.cache(id=comment_id)
     if not comment:
         return {'r': 1, 'msg': 'Comment not exist'}
     comment = Comment(**comment)

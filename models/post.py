@@ -15,7 +15,7 @@ from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
 
 from .base import Base, BaseModel, ModelMeta
-# from .mc import cache, clear_mc
+from .mc import cache, clear_mc
 from .user import User
 from .utils import trunc_utf8
 from .comment import CommentMixin
@@ -24,8 +24,28 @@ from .toc import TocMixin
 from . import schemas
 import config
 
-
+MC_KEY_TAGS_BY_POST_ID = 'post:%s:tags'
+MC_KEY_RELATED = 'post:related_posts:%s'
+MC_KEY_POST_BY_SLUG = 'post:%s:slug'
+MC_KEY_ALL_POSTS = 'core:posts:%s:v2'
+MC_KEY_FEED = 'core:feed'
+MC_KEY_SITEMAP = 'core:sitemap'
+MC_KEY_SEARCH = 'core:search.json'
+MC_KEY_ARCHIVES = 'core:archives'
+MC_KEY_ARCHIVE = 'core:archive:%s'
+MC_KEY_TAGS = 'core:tags'
+MC_KEY_TAG = 'core:tag:%s'
+MC_KEY_SPECIAL_ITEMS = 'special:%s:items'
+MC_KEY_SPECIAL_POST_ITEMS = 'special:%s:post_items'
+MC_KEY_SPECIAL_BY_PID = 'special:by_pid:%s'
+MC_KEY_SPECIAL_BY_SLUG = 'special:%s:slug'
+MC_KEY_ALL_SPECIAL_TOPICS = 'special:topics'
+RK_PAGEVIEW = 'lyanna:pageview:{}:v2'
+RK_ALL_POST_IDS = 'lyanna:all_post_ids'
+RK_VISITED_POST_IDS = 'lyanna:visited_post_ids'
 BQ_REGEX = re.compile(r'<blockquote>.*?</blockquote>')
+PAGEVIEW_FIELD = 'pv'
+
 
 class MLStripper(HTMLParser):
 
@@ -216,6 +236,7 @@ class Post(BaseModel, CommentMixin, ReactMixin):
         return True
 
     @property
+    @cache(MC_KEY_TAGS_BY_POST_ID % ('{self.id}'))
     async def tags(self):
         pts = await PostTag.async_filter(post_id=self.id)
         if not pts:
@@ -227,7 +248,7 @@ class Post(BaseModel, CommentMixin, ReactMixin):
 
     @property
     async def author(self):
-        rv = await User.async_first(id=self.author_id)
+        rv = await User.cache(id=self.author_id)
         return {'name': rv['name'], 'id': self.author_id, 'avatar': rv['avatar']}
     
     @property
@@ -254,10 +275,12 @@ class Post(BaseModel, CommentMixin, ReactMixin):
             return rv.decode('utf-8')
 
     @classmethod
+    @cache(MC_KEY_POST_BY_SLUG % '{slug}')
     async def get_by_slug(cls, slug):
         return await cls.async_first(slug=slug) 
 
     @classmethod
+    @cache(MC_KEY_ALL_POSTS % '{with_page}')
     async def get_all(cls, with_page=True):
         if with_page:
             posts = await Post.async_filter(status=Post.STATUS_ONLINE)
@@ -295,6 +318,28 @@ class Post(BaseModel, CommentMixin, ReactMixin):
         toc.reset_toc()
         toc_md.parse(content)
         return toc.render_toc(level=4)
+
+    @classmethod
+    async def cache(cls, ident):
+        if str(ident).isdigit():
+            return await super().cache(id=ident)
+        return await cls.get_by_slug(ident)
+
+    async def clear_mc(self):
+        keys = [
+            MC_KEY_FEED, MC_KEY_SITEMAP, MC_KEY_SEARCH, MC_KEY_ARCHIVES,
+            MC_KEY_TAGS, MC_KEY_RELATED % self.id,
+            MC_KEY_POST_BY_SLUG % self.slug,
+            MC_KEY_ARCHIVE % self.created_at.year
+        ]
+        for i in [True, False]:
+            keys.append(MC_KEY_ALL_POSTS % i)
+
+        for tag in await self.tags:
+            keys.append(MC_KEY_TAG % tag.id)
+
+        await clear_mc(*keys)
+                
 
             
 
@@ -342,3 +387,5 @@ class PostTag(BaseModel):
 
         for tag_id in need_add_tags_id:
             await cls.get_or_create(post_id=post_id, tag_id=tag_id)
+
+        await clear_mc(MC_KEY_TAGS_BY_POST_ID % post_id)
