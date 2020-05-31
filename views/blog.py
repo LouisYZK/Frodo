@@ -135,7 +135,7 @@ async def post(request: Request, ident):
     reaction_type = None
     liked_comment_ids = []
     github_user = request.session.get('user')
-
+    pageview = await post.incr_pageview()
     if github_user:
         reaction_type = await post.get_reaction_type(github_user['gid'])
         liked_comment_ids = await post.comment_ids_liked_by(github_user['gid'])
@@ -144,4 +144,5 @@ async def post(request: Request, ident):
     post.author = config.AttrDict(post.author)
     return {'post': post , 'github_user': github_user, 
             'stats': stats, 'reaction_type': reaction_type,
-            'liked_comment_ids': liked_comment_ids}
+            'liked_comment_ids': liked_comment_ids,
+            'pageview': pageview}

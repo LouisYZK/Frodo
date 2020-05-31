@@ -4,6 +4,7 @@ import types
 import random
 import inspect
 from datetime import datetime, timedelta
+from aioredis.errors import RedisError
 from html.parser import HTMLParser
 from sqlalchemy import Column, SmallInteger, String, Integer, Boolean, DateTime
 from sqlalchemy.sql import func
@@ -40,9 +41,9 @@ MC_KEY_SPECIAL_POST_ITEMS = 'special:%s:post_items'
 MC_KEY_SPECIAL_BY_PID = 'special:by_pid:%s'
 MC_KEY_SPECIAL_BY_SLUG = 'special:%s:slug'
 MC_KEY_ALL_SPECIAL_TOPICS = 'special:topics'
-RK_PAGEVIEW = 'lyanna:pageview:{}:v2'
-RK_ALL_POST_IDS = 'lyanna:all_post_ids'
-RK_VISITED_POST_IDS = 'lyanna:visited_post_ids'
+RK_PAGEVIEW = 'frodo:pageview:{}:v2'
+RK_ALL_POST_IDS = 'frodo:all_post_ids'
+RK_VISITED_POST_IDS = 'frodo:visited_post_ids'
 BQ_REGEX = re.compile(r'<blockquote>.*?</blockquote>')
 PAGEVIEW_FIELD = 'pv'
 
@@ -339,6 +340,26 @@ class Post(BaseModel, CommentMixin, ReactMixin):
             keys.append(MC_KEY_TAG % tag.id)
 
         await clear_mc(*keys)
+
+    async def incr_pageview(self, increment=1):
+        redis = await self.redis
+        try:
+            await redis.sadd(RK_ALL_POST_IDS,self.id)
+            await redis.sadd(RK_VISITED_POST_IDS, self.id)
+            return await redis.hincrby(RK_PAGEVIEW.format(self.id),
+                                       PAGEVIEW_FIELD, 
+                                       increment)
+        except:
+            return self.pageview
+
+    @property
+    async def pageview_(self):
+        try:
+            return int(await (await self.redis).hget(
+                RK_PAGEVIEW.format(self.id), PAGEVIEW_FIELD) or 0
+            )
+        except RedisError:
+            return self.pageview
                 
 
             

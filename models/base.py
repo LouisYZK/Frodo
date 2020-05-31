@@ -81,7 +81,11 @@ class BaseModel(Base, metaclass=ModelMeta):
     __abstract__ = True
     id = Column(Integer, primary_key=True, index=True)
     created_at = Column(DateTime)
-        
+    
+    @property
+    async def redis(self):
+        return await get_redis()
+
     @classmethod
     def to_dict(cls, 
                 results: Union[RowProxy, List[RowProxy]]) -> Union[List[dict], dict]:
