@@ -1,0 +1,18 @@
+<%inherit file="/base.html" />
+<%def name="title()">动态</%def>
+
+<%def name="doc_head()">
+<link href="${ request.url_for('static', path='css/activity/app.css') }" rel="stylesheet">
+</%def>
+
+<%def name="pagination()"></%def>
+
+<%def name="content()">
+  <div id="app"></div>
+</%def>
+
+<%def name="bottom_script()">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.18.1/min/moment-with-locales.min.js"></script>
+  <script src="${ request.url_for('static', path='js/activity/app.js') }"></script>
+</%def>

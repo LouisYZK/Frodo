@@ -162,3 +162,9 @@ async def post(request: Request, ident):
             'stats': stats, 'reaction_type': reaction_type,
             'liked_comment_ids': liked_comment_ids,
             'pageview': pageview}
+
+
+@router.get('/activities')
+@mako.template('activities.html')
+async  def activities(request: Request):
+    return {}

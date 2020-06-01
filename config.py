@@ -53,6 +53,7 @@ PERMALINK_TYPE = 'slug'  # 可选 id、slug、title
 #                   ('index.search', '搜索'), ('/page/aboutme', '关于我'),
 #                   ('index.feed', 'RSS', 'rss', '#fc6423')]
 SITE_NAV_MENUS = [('blog.index', '首页'),
+                   ('blog.activities', '动态'),
                   ('blog.tags', '标签'),
                   ('index.search', '搜索'),
                   ('blog.archives', '归档'),

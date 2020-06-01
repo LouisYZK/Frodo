@@ -4,14 +4,13 @@ partials:
     avatar: 'me.png'  # = /static/upload/me.jpg
     intro: '你看到了我哟~'
     sns:
-    - twitter: 'example'
-    - github: 'example'
+    - github: 'LouisYZK'
     - douban: 'example'
     # - linkedin: 'example'
     # - instagram: 'example'
     # - stack-overflow: 'example'
     # - medium: 'example'
-    - zhihu: 'example'
+    - zhihu: 'louis-young-23'
     - email: 'example'
     # - wechat: 'wechat-qrcode.jpg'
     # - weixingongzhonghao: 'wechat-subscription-account-qrcode.png'
@@ -29,10 +28,9 @@ partials:
   - name: blogroll
     title: 友情链接
     links:
-      - title: '大明大明大明大明大明'
-        url: 'https://www.example.com'
-      - title: '小明'
-        url: 'https://www.example.com'
+      - title: '学术版个人空间'
+        url: 'https://louisyzk.github.io/'
+
   # - name: most_viewed
   #   title: '最热文章'
   #   count: 5
