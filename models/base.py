@@ -13,21 +13,9 @@ import config
 from ext import SessionLocal, AioDataBase
 from .var import aio_databases, redis_var
 from .mc import cache, clear_mc
+from .utils import get_redis
 
-_redis = None
 
-async def get_redis():
-    global _redis
-    if _redis is None:
-        try:
-            redis = redis_var.get()
-        except LookupError:
-            # Hack for debug mode
-            loop = asyncio.get_event_loop()
-            redis = await aioredis.create_redis_pool(
-                config.REDIS_URL, minsize=5, maxsize=20, loop=loop)
-        _redis = redis
-    return _redis
 
 IGNORE_ATTRS = ['redis', 'stats']
 MC_KEY_ITEM_BY_ID = '%s:%s'

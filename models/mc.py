@@ -10,20 +10,7 @@ from .utils import Empty
 from .var import redis_var
 import config
 
-_redis = None
-
-async def get_redis():
-    global _redis
-    if _redis is None:
-        try:
-            redis = redis_var.get()
-        except LookupError:
-            # Hack for debug mode
-            loop = asyncio.get_event_loop()
-            redis = await aioredis.create_redis_pool(
-                config.REDIS_URL, minsize=5, maxsize=20, loop=loop)
-        _redis = redis
-    return _redis
+from .utils import get_redis
 
 def gen_key_factory(key_pattern: str, arg_names: list, kwonlydefaults: dict):
     def gen_key(*args, **kwargs):

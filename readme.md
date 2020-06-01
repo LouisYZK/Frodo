@@ -36,6 +36,7 @@ Personal Blog via FastAPI.
 | api/tags | GET | x | items.*.name |需要登录 |
 | api/user/info | GET | user (token)| user{'name', 'avartar'} | 相当于current_user|
 | api/get_url_info | POST | url | x | na |
+| api/status | POST | text, url, fids = ["png", ...] | r, msg, activity.id, activity.layout, activity.n_comments, activity.n_likes, activity.created_at, activity.can_comment, activity.attachments.\*.layout, activity.attachments.\*.url, activity.attachments.\*.title, activity.attachments.*.size |
 
 ## ToDo
 - [x] 用户模块及认证模块完成 2020-05-17
@@ -47,5 +48,6 @@ Personal Blog via FastAPI.
 - [x] 加入缓存（统一用redis) 2020-05-31 Changed a lot
 - [x] 阅读量 (require: cached) 2020-05-31
 - [ ] 动态模块 (Activity) 最后的功能模块
+- [ ] 动态集成评论与反馈
 - [ ] 更换前端 (require: Modify Hexo Theme to Mako)
 - [ ] 文档和心得 
