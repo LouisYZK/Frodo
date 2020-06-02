@@ -105,4 +105,8 @@ ONE_MINUTE = 60
 ONE_HOUR = ONE_MINUTE * 60
 ONE_DAY = ONE_HOUR * 24
 
-PERMALINK_TYPES = ('id', 'slug', 'title')
+K_STATUS = 1003
+K_ACTIVITY = 1004
+CDN_DOMAIN = ''
+
+STATIC_FILE_TYPES = ('jpg', 'png', 'webp', 'gif', 'mp4', 'css', 'js')

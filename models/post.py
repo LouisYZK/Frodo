@@ -14,7 +14,7 @@ from .user import User
 from .utils import trunc_utf8
 from .comment import CommentMixin
 from .react import ReactMixin
-from .markdown import markdown, toc, toc_md
+from .markdown import markdown, toc, toc_md, MLStripper
 from . import schemas
 import config
 

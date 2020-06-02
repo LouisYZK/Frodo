@@ -8,8 +8,9 @@ from fastapi import APIRouter, Request, Depends, HTTPException, status, Form, Up
 from typing import List, Optional, Any
 from ext import mako, oauth2_scheme
 from models import schemas, forms
-from models.user import User, create_user, modify_user, search_user_by_name
+from models.user import User, create_user, modify_user, search_user_by_name, get_current_user
 from models.post import Post, Tag, PostTag
+from models.utils import generate_id
 import config
 
 router = APIRouter()
@@ -44,7 +45,7 @@ async def delete_user(data: schemas.UserDelete, token=Depends(oauth2_scheme)):
     
     
 @router.get('/user/info')
-async def current_user(token: str=Depends(oauth2_scheme)):
+async def current_user(request: Request, token: str=Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Invalid authentication credentials',
@@ -61,12 +62,14 @@ async def current_user(token: str=Depends(oauth2_scheme)):
     user = schemas.User(**user)
     if user is None:
         raise credentials_exception
+    request.session['user'] = dict(user)
     return user
 
 @router.get('/user/{user_id}/')
 async def get_user_by_id(request: Request, user_id: int, token=Depends(oauth2_scheme)):
     # user = await User.async_first(id=user_id)
     user = await User.cache(id=user_id)
+    print(user)
     if not user:
         raise HTTPException(404, 'not such user!')
     avatar = user.get('avatar', None)
@@ -90,16 +93,37 @@ async def update_user(user_id: int,
     rv = await modify_user(user)
 
 @router.post('/upload')
-async def upload(avatar: UploadFile=Form(...), token=Depends(oauth2_scheme)):
-    upload_time = datetime.now().strftime('%Y-%m')
-    uploaded_file = Path(config.UPLOAD_FOLDER) / f"{upload_time}.{avatar.filename.split('.')[-1]}"
-    content = await avatar.read()
+async def upload(request: Request,
+                 avatar: UploadFile=Form(None),
+                 file: UploadFile=Form(None)):
+    user = request.session.get('user', {})
+    if not user:
+        return {'msg': 'Auth required.'}
+    if avatar is not None:
+        file = avatar
+        is_avarta = True
+    else:
+        is_avarta = False
+
+    suffix = file.filename.split('.')[-1]
+    fid = generate_id()
+    filename = f'{fid}.{suffix}'
+    uploaded_file = Path(config.UPLOAD_FOLDER) / filename
+    content = await file.read()
     with open(uploaded_file, 'wb') as f:
         f.write(content)
     mime, _ = mimetypes.guess_type(str(uploaded_file))
     encoded = b''.join(base64.encodestring(content).splitlines()).decode()
-    return {'files': {'avatar': f'data:{mime};base64,{encoded}'},
-                          'avatar_path': avatar.filename}
+
+    if is_avarta:
+        dct = {
+            'files': {
+                'avatar': f'data:{mime};base64,{encoded}', 'avatar_path':  filename
+            }
+        }
+    else:
+        dct = {'r': 0, 'filename': filename}
+    return dct
 
 
 @router.get('/user/search', response_model=schemas.CommonResponse)
@@ -208,5 +232,14 @@ async def list_tags():
     tags = await Tag.async_all()
     return {'items': [t['name'] for t in tags] }
 
+
+@router.post('/status')
+async def create_status(request: Request, token: str = Depends(oauth2_scheme)):
+    data = await request.json()
+    # obj, msg = await create_new_status(user, request.json)
+    # activity = None if not obj else await obj.to_full_dict()
+    # return {'r': not bool(obj), 'msg': msg, 'activity': activity}
+    user = request.session.get('user', {})
+    return user
 
 

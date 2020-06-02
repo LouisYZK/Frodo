@@ -1,5 +1,5 @@
 *.pyc
 .vscode/*
 alembic/versions/*
-static/image/*
+static/upload/*
 

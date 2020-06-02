@@ -1,6 +1,13 @@
 import math
+import os
+import binascii
+import struct
+import time
+import random
+import threading
 import asyncio
 import aioredis
+from functools import wraps
 from .var import redis_var
 import config
 
@@ -18,6 +25,20 @@ async def get_redis():
                 config.REDIS_URL, minsize=5, maxsize=20, loop=loop)
         _redis = redis
     return _redis
+
+class ObjectId:
+    _inc = random.randint(0, 0xFFFFFF)
+    _inc_lock = threading.Lock()
+
+
+def generate_id() -> str:
+    oid = struct.pack(">i", int(time.time()))
+    oid += struct.pack(">H", os.getpid() % 0xFFFF)
+    with ObjectId._inc_lock:
+        oid += struct.pack(">i", ObjectId._inc)[2:4]
+        ObjectId._inc = (ObjectId._inc + 1) % 0xFFFFFF
+    return binascii.hexlify(oid).decode('utf-8')
+
 
 class Pagination:
     
@@ -131,3 +152,47 @@ class Empty:
 
     def __delattr__(self, name):
         return self
+
+class cached_property:
+    def __init__(self, func):
+        self.__doc__ = getattr(func, '__doc__')
+        self.func = func
+
+    def __get__(self, obj, cls):
+        if obj is None:
+            return self
+
+        if asyncio and asyncio.iscoroutinefunction(self.func):
+            return self._wrap_in_coroutine(obj)  # type: ignore
+
+        value = obj.__dict__[self.func.__name__] = self.func(obj)
+        return value
+
+    def _wrap_in_coroutine(self, obj):
+        @wraps(obj)
+        async def wrapper():
+            future = asyncio.ensure_future(self.func(obj))
+            obj.__dict__[self.func.__name__] = future
+            return await future
+
+        return wrapper()
+
+class Test:
+    @cached_property
+    async def pro(self):
+        return 500
+
+
+
+if __name__ == '__main__':
+    # import asyncio
+    async def run():
+        t = Test() 
+        await t.pro
+        await t.pro
+    asyncio.run(run())
+    # Test().pro2 # Test.__dict__['pro2'].__get__(Test)
+    # a = Activity()
+    # await a.target ==> a.__dict__['target'].__get__(obj=a)
+    # cached:        ==> a.__dict__['target']
+    

@@ -51,3 +51,10 @@ Personal Blog via FastAPI.
 - [ ] 动态集成评论与反馈
 - [ ] 更换前端 (require: Modify Hexo Theme to Mako)
 - [ ] 文档和心得 
+
+更远的目标 Far more tasks：
+- [ ] Docker虚拟化
+- [ ] 整体迁移至Rowsberry
+- [ ] 自动化部署 使用 Ansible
+- [ ] Golang重写后台部分API
+  

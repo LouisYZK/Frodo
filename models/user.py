@@ -2,10 +2,11 @@ from datetime import timedelta, datetime
 import jwt
 from jwt import PyJWTError
 from typing import List
+from fastapi import Depends, status, HTTPException
 from sqlalchemy import Column, String, Text, Boolean, Integer
 from sqlalchemy.orm import Session
 from models.base import BaseModel
-from ext import pwd_context
+from ext import pwd_context, oauth2_scheme
 from models import schemas
 import config
 
@@ -65,6 +66,27 @@ async def search_user_by_name(name: str) -> List[schemas.User]:
         u = schemas.User(**item)
         if name in u.name: res.append(u)
     return res
+
+
+async def get_current_user(token: str):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        playload = jwt.decode(token, config.JWT_SECRET, algorithms=config.JWT_ALGORITHM)
+        username: str = playload.get('sub')
+        if username is None:
+            raise credentials_exception
+        token_data = schemas.TokenData(username=username)
+    except PyJWTError:
+        raise credentials_exception
+    user = await User.async_first(name=token_data.username)
+    user = schemas.User(**user)
+    if user is None:
+        raise credentials_exception
+    return user
 
 class GithubUser(BaseModel):
     gid = Column(Integer(), unique=True)
