@@ -1,4 +1,5 @@
 import base64
+import asyncio
 import mimetypes
 import jwt
 from jwt import PyJWTError
@@ -11,7 +12,7 @@ from models import schemas, forms
 from models.user import User, create_user, modify_user, search_user_by_name, get_current_user
 from models.post import Post, Tag, PostTag
 from models.utils import generate_id
-from models.activity import create_new_status
+from models.activity import create_new_status, create_activity_after_post_created
 import config
 
 router = APIRouter()
@@ -68,9 +69,7 @@ async def current_user(request: Request, token: str=Depends(oauth2_scheme)):
 
 @router.get('/user/{user_id}/')
 async def get_user_by_id(request: Request, user_id: int, token=Depends(oauth2_scheme)):
-    # user = await User.async_first(id=user_id)
     user = await User.cache(id=user_id)
-    print(user)
     if not user:
         raise HTTPException(404, 'not such user!')
     avatar = user.get('avatar', None)
@@ -136,7 +135,7 @@ async def search_user(name: str):
 @router.post('/post/new')
 async def create_post(title: str = Form(...),
                       slug: str = Form(...),
-                      summary: str = Form(...),
+                      summary: str = Form(None),
                       content = Form(...),
                       is_page: bool = Form(...),
                       can_comment: bool = Form(...),
@@ -156,13 +155,17 @@ async def create_post(title: str = Form(...),
     if not new_post:
         raise HTTPException(status_code=500,
                             detail='Create User fails...')
+    task = create_activity_after_post_created(post_id=new_post.id, user_id=author_id)
+    asyncio.create_task(task)
+
     return new_post
 
 @router.get('/posts')
 async def list_posts(limit: int=config.PER_PAGE, page: int=1, with_tag: int = 0):
     offset = (page - 1) * limit
     total = len(await Post.async_all())
-    _posts = await Post.async_all(limit=limit, offset=offset)
+    _posts = await Post.async_all(limit=limit, offset=offset,
+                                  order_by='created_at', desc=True)
     _posts = sorted(_posts, key=lambda x: -x['id'])
     posts = []
     for post in _posts:

@@ -185,6 +185,7 @@ class BaseModel(Base, metaclass=ModelMeta):
         query = table.insert()
         async with AioDataBase() as db:
             rv = await db.execute(query=query, values=kwargs)
+            print(query)
         obj = cls(**(await cls.async_first(id=rv)))
         await cls.__flush__(obj)
         return rv

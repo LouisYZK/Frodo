@@ -123,11 +123,12 @@ class Activity(CommentMixin, ReactMixin, BaseModel):
         kls = None
         if self.target_kind == config.K_POST:
             kls = Post
+            data = await kls.cache(ident=self.target_id)
         elif self.target_kind == config.K_STATUS:
             kls = Status
+            data = await kls.cache(id=self.target_id)
         if kls is None:
             return
-        data = await kls.cache(id=self.target_id)
         return await kls(**data).to_async_dict(**data)
 
     @property
@@ -146,7 +147,7 @@ class Activity(CommentMixin, ReactMixin, BaseModel):
                     action = f'上传了{len(attachments)}个视频'
             elif '```' in target.content:
                 action = '分享了代码片段'
-        elif self.target_kind == K_POST:
+        elif self.target_kind == config.K_POST:
             action = '写了新文章'
 
         if action is None:
@@ -249,3 +250,5 @@ async def create_new_status(user_id: int, data: Dict) -> Tuple[bool, str]:
     return act, ''
 
 
+async def create_activity_after_post_created(post_id: int, user_id: int):
+    await Activity.acreate(target_id=post_id, target_kind=config.K_POST, user_id=int(user_id))
