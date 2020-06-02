@@ -5,7 +5,8 @@ from pathlib import Path
 from pickle import dumps, loads
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy.sql import func
 
 import config
 from .base import BaseModel
@@ -59,13 +60,15 @@ class Video(Attachment):
 class Status(ContentMixin, BaseModel):
     kind = config.K_STATUS
     user_id = Column(Integer())
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     @classmethod
-    async def acreate(cls, **kwargs) -> Status:
+    async def acreate(cls, **kwargs):
         content = kwargs.pop('content')
         rv = await super().acreate(**kwargs)
         obj = cls(**(await cls.async_first(id=rv)))
         await obj.set_content(content)
+        await cls.__flush__(obj)
         return obj
 
     async def set_attachments(self,
@@ -87,7 +90,7 @@ class Status(ContentMixin, BaseModel):
 
     @property
     async def user(self) -> User:
-        rv = await User.cache(self.user_id)
+        rv = await User.cache(id=self.user_id)
         return rv
 
     async def clear_mc(self):
@@ -100,21 +103,20 @@ class Activity(CommentMixin, ReactMixin, BaseModel):
     user_id = Column(Integer())
     target_id = Column(Integer())
     target_kind = Column(Integer())
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
     
     @classmethod
     @cache(MC_KEY_ACTIVITIES % '{page}')
-    async def _get_multi_by(cls, page: int = 1) -> List[Dict]:
+    async def get_multi_by(cls, page: int = 1) -> List[Dict]:
         items = []
         queryset = await cls.async_all(
             offset=(page - 1) * PER_PAGE,
-            limit=PER_PAGE)
+            limit=PER_PAGE,
+            order_by='created_at',
+            desc=True)
         for data in queryset:
-            items.append(await cls(**data)._to_full_dict())
+            items.append(await cls(**data).to_full_dict())
         return items
-
-    @classmethod
-    async def get_multi_by(cls, page: int = 1) -> List[Dict]:
-        pass
     
     @cached_property
     async def target(self) -> dict:
@@ -125,14 +127,15 @@ class Activity(CommentMixin, ReactMixin, BaseModel):
             kls = Status
         if kls is None:
             return
-        return await kls.cache(id=self.target_id)
+        data = await kls.cache(id=self.target_id)
+        return await kls(**data).to_async_dict(**data)
 
     @property
     async def action(self):
         action = None
-        if self.target_kind == K_STATUS:
+        if self.target_kind == config.K_STATUS:
             target = await self.target
-            attachments = await target.attachments
+            attachments = target.attachments
             if attachments:
                 layout = attachments[0]['layout']
                 if layout == Attachment.LAYOUT_LINK:
@@ -141,7 +144,7 @@ class Activity(CommentMixin, ReactMixin, BaseModel):
                     action = f'上传了{len(attachments)}张照片'
                 elif layout == Attachment.LAYOUT_VIDEO:
                     action = f'上传了{len(attachments)}个视频'
-            elif '```' in await target.content:
+            elif '```' in target.content:
                 action = '分享了代码片段'
         elif self.target_kind == K_POST:
             action = '写了新文章'
@@ -154,7 +157,7 @@ class Activity(CommentMixin, ReactMixin, BaseModel):
     async def attachments(self):
         if self.target_kind == config.K_STATUS:
             target = await self.target
-            attachments = await target.attachments
+            attachments = target.attachments
         elif self.target_kind == config.K_POST:
             target = await self.target
             attachments = [
@@ -170,23 +173,22 @@ class Activity(CommentMixin, ReactMixin, BaseModel):
         return await User.cache(id=self.user_id)
     
     @classmethod
-    @cache(MC_KEY_ACTIVITY_COUNT)
+    # @cache(MC_KEY_ACTIVITY_COUNT)
     async def count(cls) -> int:
         data = await cls.async_all()
         return len(data)
     
     @cache(MC_KEY_ACTIVITY_FULL_DICT % '{self.id}')
-    async def _to_full_dict(self) -> Dict[str, Any]:
+    async def to_full_dict(self) -> Dict[str, Any]:
         target = await self.target
         if not target:
             return {}
         user = await self.user
-        target = await self.target
         if self.target_kind == config.K_STATUS:
             target['url'] = ''
         elif self.target_kind == config.K_POST:
             pass
-        avatar = user['avarta']
+        avatar = user['avatar']
         if avatar:
             domain = config.CDN_DOMAIN if config.CDN_DOMAIN and not config.DEBUG else ''
             avatar = f'{domain}/static/upload/{avatar}'
@@ -202,30 +204,19 @@ class Activity(CommentMixin, ReactMixin, BaseModel):
             'action': await self.action,
             'created_at': self.created_at,
             'attachments': attachments,
-            'can_comment': self.can_comment,
+            'can_comment': False,  # contemporary
             'layout': attachments[0]['layout'] if attachments else '',
         }
-
-    async def dynamic_dict(self) -> Dict[str, int]:
-        return {
-            'n_likes': await self.n_likes,
-            'n_comments': await self.n_comments
-        }
-
-    async def to_full_dict(self) -> Dict[str, Any]:
-        dct = await self._to_full_dict()
-        dct.update(await self.dynamic_dict())
-        return dct
 
     async def clear_mc(self):
         total = await self.count()
         page_count = math.ceil(total / PER_PAGE)
         keys = [MC_KEY_ACTIVITIES % p for p in range(1, page_count+1)]
-        keys.extend(MC_KEY_ACTIVITY_COUNT, MC_KEY_ACTIVITY_FULL_DICT % self.id)
+        keys.extend([MC_KEY_ACTIVITY_COUNT, MC_KEY_ACTIVITY_FULL_DICT % self.id])
         await clear_mc(*keys)
     
 
-async def create_status(user_id: int, data: Dict) -> Tuple[bool, str]:
+async def create_new_status(user_id: int, data: Dict) -> Tuple[bool, str]:
     text = data.get('text')
     if not text: 
         return False, 'Text reqiured.'
@@ -234,7 +225,14 @@ async def create_status(user_id: int, data: Dict) -> Tuple[bool, str]:
     url = data.get('url', '')
     attachments = []
     if fids:
-        # layout = Video if 
+        is_video = fids[0].endswith('mp4')
+        layout = Video if is_video else Photo
+        for fid in fids:
+            attach = layout(url=f'/static/upload/{fid}')
+            if config.USE_FFMPEG and is_video:
+                pass
+        
+            attachments.append(attach)
 
     elif url:
         url_info = data.get('url_info', {})
@@ -245,8 +243,9 @@ async def create_status(user_id: int, data: Dict) -> Tuple[bool, str]:
     if not status:
         return False, 'Create status fail.'
     await status.set_attachments(attachments)
-    act = await Activity.acreate(target_id=status.id, target_kind=config.K_STATUS,
+    act_id = await Activity.acreate(target_id=status.id, target_kind=config.K_STATUS,
                                  user_id=user_id)
+    act = Activity(**(await Activity.async_first(id=act_id)))
     return act, ''
 
 

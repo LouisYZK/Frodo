@@ -3,7 +3,7 @@ import aioredis
 from fastapi import Depends
 from typing import List, Union
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, and_
+from sqlalchemy import Column, Integer, String, DateTime, and_, desc
 from sqlalchemy.orm import Session
 from sqlalchemy.engine.result import RowProxy
 from sqlalchemy.ext.declarative import as_declarative, declared_attr, DeclarativeMeta
@@ -164,12 +164,17 @@ class BaseModel(Base, metaclass=ModelMeta):
         table = cls.__table__
         limit = kwargs.pop('limit', '')
         offset = kwargs.pop('offset', '')
+        order_by = kwargs.pop('order_by', '')
+        descending = kwargs.pop('desc', False)
         async with AioDataBase() as db:
             query = table.select()
             if limit:
                 query = query.limit(limit)
             if offset:
                 query = query.offset(offset)
+            if order_by:
+                query = query.order_by(order_by) if not desc \
+                            else query.order_by(desc(order_by))
             res = await db.fetch_all(query)
         return cls.to_dict(res)
         

@@ -27,18 +27,21 @@ class ContentMixin:
         return await self.set_props_by_key('content', content)
 
     async def asave(self, *args, **kwargs):
-        if (content := kwargs.pop('content', None)) is not None:
+        content = kwargs.pop('content', None)
+        if content is not None:
             await self.set_content(content)
         return await super().asave(*args, **kwargs)  # type: ignore
 
     @property
     async def content(self) -> str:
-        if (rv := await self.get_props_by_key('content')):
+        rv = await self.get_props_by_key('content')
+        if rv:
             return rv.decode('utf-8')
         return ''
 
     @property
     async def html_content(self):
-        if not (content := str(markupsafe.escape(await self.content))):
+        content = str(markupsafe.escape(await self.content))
+        if not content:
             return ''
         return markdown(content.replace('&gt;', '>'))

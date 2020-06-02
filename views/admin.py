@@ -11,6 +11,7 @@ from models import schemas, forms
 from models.user import User, create_user, modify_user, search_user_by_name, get_current_user
 from models.post import Post, Tag, PostTag
 from models.utils import generate_id
+from models.activity import create_new_status
 import config
 
 router = APIRouter()
@@ -62,7 +63,7 @@ async def current_user(request: Request, token: str=Depends(oauth2_scheme)):
     user = schemas.User(**user)
     if user is None:
         raise credentials_exception
-    request.session['user'] = dict(user)
+    request.session['admin_user'] = dict(user)
     return user
 
 @router.get('/user/{user_id}/')
@@ -234,12 +235,13 @@ async def list_tags():
 
 
 @router.post('/status')
-async def create_status(request: Request, token: str = Depends(oauth2_scheme)):
+async def create_status(request: Request):
+    user = request.session.get('admin_user', {})
+    if not user:
+        return {'r': 0, 'msg': 'Auth required.'}
     data = await request.json()
-    # obj, msg = await create_new_status(user, request.json)
-    # activity = None if not obj else await obj.to_full_dict()
-    # return {'r': not bool(obj), 'msg': msg, 'activity': activity}
-    user = request.session.get('user', {})
-    return user
+    obj, msg = await create_new_status(user.get('id'), data)
+    activity = None if not obj else await obj.to_full_dict()
+    return {'r': not bool(obj), 'msg': msg, 'activity': activity}
 
 

@@ -37,7 +37,7 @@ async def oauth_in_post(request: Request, post_id=None):
         url = '/'
     else:
         url = request.url_for('post', ident=post_id)
-    if 'user' in request.session:
+    if 'github_user' in request.session:
         return RedirectResponse(url)
     else:
         client = GithubClient()
@@ -58,5 +58,5 @@ async def oauth(request: Request):
     except:
         return RedirectResponse(config.OAUTH_REDIRECT_PATH)
     rv = await create_github_user(user_info)
-    request.session['user'] = rv
+    request.session['github_user'] = rv
     return RedirectResponse(request.session.get('post_url'))

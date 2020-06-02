@@ -182,6 +182,8 @@ class Test:
     async def pro(self):
         return 500
 
+def date_to_timestamp(date):
+    return int(time.mktime(date.timetuple()))
 
 
 if __name__ == '__main__':

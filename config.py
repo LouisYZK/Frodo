@@ -108,5 +108,6 @@ ONE_DAY = ONE_HOUR * 24
 K_STATUS = 1003
 K_ACTIVITY = 1004
 CDN_DOMAIN = ''
+USE_FFMPEG = False
 
 STATIC_FILE_TYPES = ('jpg', 'png', 'webp', 'gif', 'mp4', 'css', 'js')

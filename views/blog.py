@@ -150,7 +150,7 @@ async def post(request: Request, ident):
     stats = await post.stats
     reaction_type = None
     liked_comment_ids = []
-    github_user = request.session.get('user')
+    github_user = request.session.get('github_user')
     pageview = await post.incr_pageview()
     if github_user:
         reaction_type = await post.get_reaction_type(github_user['gid'])
