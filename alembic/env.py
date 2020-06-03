@@ -19,9 +19,7 @@ fileConfig(config.config_file_name)
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 import sys
-sys.path.append('/home/yzk/fast_blog/')
-# from models.model import Base
-# target_metadata = Base.metadata
+sys.path.append(config_.HERE)
 from models import Base
 target_metadata = Base.metadata
 
@@ -85,3 +83,4 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     run_migrations_online()
+

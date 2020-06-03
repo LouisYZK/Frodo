@@ -12,6 +12,50 @@ Personal Blog via FastAPI.
 
 管理后台界面参考使用 [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
 
+## 如何使用？
+### 本地部署
+依赖要求
+- python >=3.7
+- mysql
+- redis
+- Unbuntu/MacOS (Windows请看Docker版本部署)
+
+首先clone项目
+```bash
+git clone git@github.com:LouisYZK/Frodo.git
+```
+创建并进入python虚拟环境，请使用本地任意大于3.7版本的python创建
+```
+cd Frodo
+python -m venv venv
+source ./venv/bin/activate
+pip install -r requirements.txt
+```
+如果没有安装virtualenv 先pip安装
+```
+pip install virtualenv
+```
+修改数据库配置，初始化数据库。(确保mysql与redis都已运行)
+
+修改config/config.ini.model
+```
+username = 
+password = 
+port = 3306
+db = fast_blog
+charset = utf8
+```
+然后运行脚本使用alembic 创建表
+```
+bash migrate.sh
+```
+成功后运行项目
+```
+python main.py
+```
+
+### Docker部署
+
 ## 原型
 项目的原型是根据dongweiming的项目 [lyana](https://github.com/dongweiming/lyanna) 修改完成，参考了大量的设计模式和架构。只是将其中使用到的`Sanic`和`tortoise`部分替换为fastapi的模式。
 

@@ -2,4 +2,4 @@
 .vscode/*
 alembic/versions/*
 static/upload/*
-
+*.out

@@ -19,8 +19,13 @@ CLIENT_ID = config.get('github', 'client_id')
 CLIENT_SECRET = config.get('github', 'client_secret')
 
 
-DB_URL = os.getenv('DB_URL',
-            config.get('database', 'db_url'))
+# DB_URL = os.getenv('DB_URL', config.get('database', 'db_url'))
+db_username = config.get('database', 'username')
+db_pwd = config.get('database', 'password')
+db_port = config.get('database', 'port')
+db = config.get('database', 'db')
+charset = config.get('database', 'charset')
+DB_URL = f'mysql+pymysql://{db_username}:{db_pwd}@localhost:{db_port}/{db}?charset={charset}'
 REDIS_URL = os.getenv('REDIS_URL', 
             config.get('redis', 'redis_url'))
 DEBUG = os.getenv('DEBUG', config.get('global', 'debug')).lower() \
