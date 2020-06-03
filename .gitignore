@@ -3,3 +3,4 @@
 alembic/versions/*
 static/upload/*
 *.out
+venv/*
