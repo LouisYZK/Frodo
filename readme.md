@@ -45,13 +45,13 @@ port = 3306
 db = fast_blog
 charset = utf8
 ```
-然后运行脚本使用alembic 创建表
+然后运行脚本使用alembic 创建表与迁移
 ```
 bash migrate.sh
 ```
 成功后运行项目
 ```
-python main.py
+bash start.sh
 ```
 
 ### Docker部署

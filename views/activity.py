@@ -9,7 +9,6 @@ router = APIRouter()
 @router.get('/activities')
 async def activities(request: Request, page: int = 1):
     total = await Activity.count()
-    print(total)
     items = await Activity.get_multi_by(page)
     guser = request.session.get('github_user', {})
     if not guser:

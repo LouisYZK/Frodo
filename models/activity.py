@@ -115,7 +115,10 @@ class Activity(CommentMixin, ReactMixin, BaseModel):
             order_by='created_at',
             desc=True)
         for data in queryset:
-            items.append(await cls(**data).to_full_dict())
+            try:
+                items.append(await cls(**data).to_full_dict())
+            except:
+                continue
         return items
     
     @cached_property

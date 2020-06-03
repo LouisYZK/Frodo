@@ -90,11 +90,9 @@ class Post(BaseModel, CommentMixin, ReactMixin):
             try:
                 await PostTag.update_multi(obj_id, tags)
             except:
-                import traceback
-                traceback.print_exc()
                 await Post.adelete(id=obj_id)
                 return
-        obj = cls(**kwargs)
+        obj = cls(**(await cls.async_first(obj_id)))
         await obj.set_content(content)
         return obj
     
@@ -116,6 +114,7 @@ class Post(BaseModel, CommentMixin, ReactMixin):
 
     @property
     async def author(self):
+        print('user_id', self.author_id)
         rv = await User.cache(id=self.author_id)
         return {'name': rv['name'], 'id': self.author_id, 'avatar': rv['avatar']}
     
@@ -194,18 +193,22 @@ class Post(BaseModel, CommentMixin, ReactMixin):
         return await cls.get_by_slug(ident)
 
     async def clear_mc(self):
-        keys = [
-            MC_KEY_FEED, MC_KEY_SITEMAP, MC_KEY_SEARCH, MC_KEY_ARCHIVES,
-            MC_KEY_TAGS, MC_KEY_RELATED % self.id,
-            MC_KEY_POST_BY_SLUG % self.slug,
-            MC_KEY_ARCHIVE % self.created_at.year
-        ]
+        print('Clear POst MC', self.created_at)
+        try:
+            keys = [
+                MC_KEY_FEED, MC_KEY_SITEMAP, MC_KEY_SEARCH, MC_KEY_ARCHIVES,
+                MC_KEY_TAGS, MC_KEY_RELATED % (self.id, 4),
+                MC_KEY_POST_BY_SLUG % self.slug,
+                MC_KEY_ARCHIVE % self.created_at.year
+            ]
+        except:
+            import traceback
+            traceback.print_exc()
         for i in [True, False]:
             keys.append(MC_KEY_ALL_POSTS % i)
 
         for tag in await self.tags:
             keys.append(MC_KEY_TAG % tag.id)
-
         await clear_mc(*keys)
 
     async def incr_pageview(self, increment=1):
