@@ -78,7 +78,7 @@ async def get_user_by_id(request: Request, user_id: int, token=Depends(oauth2_sc
     user.pop('password')
     return user
 
-@router.put('/user/{user_id}/')
+@router.put('/user/{user_id}')
 async def update_user(user_id: int,
                       name: str = Form(...),
                       id: str = Form(...),

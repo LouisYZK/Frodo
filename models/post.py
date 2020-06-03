@@ -92,7 +92,7 @@ class Post(BaseModel, CommentMixin, ReactMixin):
             except:
                 await Post.adelete(id=obj_id)
                 return
-        obj = cls(**(await cls.async_first(obj_id)))
+        obj = cls(**(await cls.async_first(id=obj_id)))
         await obj.set_content(content)
         return obj
     

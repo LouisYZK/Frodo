@@ -49,11 +49,24 @@ charset = utf8
 ```
 bash migrate.sh
 ```
-成功后运行项目
+然后创建你的用户
+```
+python manage.py adduser
+```
+根据提示输入用户名密码等就ok， 之后就可以启动项目了
 ```
 bash start.sh
 ```
+成功启动后（输出信息不报错），首先访问`localhost:8001/admin` 登进管理后台创建几篇文章。或使用
+```
+python manage.py hexo_export.py --dir xx --uname
+```
+进行markdown文章的批量导入。随后访问`localhost:8001`正常的话可以看到界面。
 
+`动态功能` 需要先去`admin`下登录，然后动态页面才会出现发送动态的输入表单。
+
+此外，`localhost:8001/docs` 是项目所有的API文档和调试入口，这是`fastapi`自动生成的，如果你在开发时严格执行`OpenAPI` 规范，那么这份文档可以直接输出供他人参考。
+ 
 ### Docker部署
 
 ## 原型
