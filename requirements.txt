@@ -16,6 +16,7 @@ aiofiles
 aioredis
 pangu
 mistune
-# FastAPI-Mako==0.6.0
+FastAPI-Mako==0.6.2
 aiohttp
+pygments
 itsdangerous

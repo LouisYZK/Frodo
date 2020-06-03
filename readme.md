@@ -22,7 +22,7 @@ Personal Blog via FastAPI.
 
 首先clone项目
 ```bash
-git clone git@github.com:LouisYZK/Frodo.git
+git clone https://github.com/LouisYZK/Frodo
 ```
 创建并进入python虚拟环境，请使用本地任意大于3.7版本的python创建
 ```
