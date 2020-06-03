@@ -48,8 +48,8 @@ Personal Blog via FastAPI.
 - [x] 加入缓存（统一用redis) 2020-05-31 Changed a lot
 - [x] 阅读量 (require: cached) 2020-05-31
 - [x] 动态模块 (Activity) 最后的功能模块 2020-06-02
-- [ ] 动态集成评论与反馈 _放弃不做了，没意义且麻烦_
-- [ ] 更换前端 (require: Modify Hexo Theme to Mako)
+- [ ] ~~动态集成评论与反馈 _放弃不做了，没意义且麻烦_~~
+- [ ] 更换前端 (require: Modify Hexo Theme to Mako) 延后
 - [ ] 文档和心得 
 
 更远的目标 Far more tasks：

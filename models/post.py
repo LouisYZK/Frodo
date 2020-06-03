@@ -19,7 +19,7 @@ from . import schemas
 import config
 
 MC_KEY_TAGS_BY_POST_ID = 'post:%s:tags'
-MC_KEY_RELATED = 'post:related_posts:%s'
+MC_KEY_RELATED = 'post:related_posts:%s:limit:%s'
 MC_KEY_POST_BY_SLUG = 'post:%s:slug'
 MC_KEY_ALL_POSTS = 'core:posts:%s:v2'
 MC_KEY_FEED = 'core:feed'
@@ -63,6 +63,22 @@ class Post(BaseModel, CommentMixin, ReactMixin):
     pageview = Column(Integer(), default=0)
 
     kind = config.K_POST
+
+
+    @cache(MC_KEY_RELATED % ('{self.id}', '{limit}'))
+    async def get_related(self, limit: int=4):
+        tag_ids = [tag.id for tag in await self.tags]
+        if not tag_ids:
+            return []
+        post_ids = set([ item['post_id']
+            for item in await PostTag.async_in('tag_id', tag_ids)])
+        post_ids -= set([self.id])
+        if not post_ids: return []
+        related_posts = [
+            Post(**p)
+            for p in await Post.async_in('id', post_ids)
+        ]
+        return related_posts[:limit] if len(related_posts) >= limit else related_posts
 
     @classmethod
     async def acreate(cls, **kwargs):
@@ -211,7 +227,9 @@ class Post(BaseModel, CommentMixin, ReactMixin):
             )
         except RedisError:
             return self.pageview
-                
+
+
+                     
 
             
 
