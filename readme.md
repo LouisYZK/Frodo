@@ -69,8 +69,8 @@ python manage.py hexo_export.py --dir xx --uname
  
 ### Docker部署
 
-## 原型
-项目的原型是根据dongweiming的项目 [lyana](https://github.com/dongweiming/lyanna) 修改完成，参考了大量的设计模式和架构。只是将其中使用到的`Sanic`和`tortoise`部分替换为fastapi的模式。
+## 参考
+项目的架构和功能设计很多参考了dongweiming的项目 [lyana](https://github.com/dongweiming/lyanna).
 
 在此特向原作者感谢，这是一个十分有趣且意义十足的学习过程。
 
@@ -106,12 +106,13 @@ python manage.py hexo_export.py --dir xx --uname
 - [x] 阅读量 (require: cached) 2020-05-31
 - [x] 动态模块 (Activity) 最后的功能模块 2020-06-02
 - [ ] ~~动态集成评论与反馈 _放弃不做了，没意义且麻烦_~~
+- [x] 本地部署测试与文档
+- [ ] Golang重写后台部分API
+- [ ] Docker虚拟化部署
+- [ ] 整体迁移至Rowsberry
+- [ ] 自动化部署 使用 Ansible
 - [ ] 更换前端 (require: Modify Hexo Theme to Mako) 延后
 - [ ] 文档和心得 
 
-更远的目标 Far more tasks：
-- [ ] Docker虚拟化
-- [ ] 整体迁移至Rowsberry
-- [ ] 自动化部署 使用 Ansible
-- [ ] Golang重写后台部分API
+
   

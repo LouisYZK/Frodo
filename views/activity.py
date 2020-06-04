@@ -22,5 +22,4 @@ async def activities(request: Request, page: int = 1):
         item['created_at'] = date_to_timestamp(item['created_at'])
         item['target']['created_at'] = date_to_timestamp(item['target']['created_at'])
         activities.append(item)
-    from pprint import pprint
     return {'items': activities, 'total': total}
