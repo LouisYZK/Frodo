@@ -15,15 +15,15 @@ Personal Blog via FastAPI.
 ### 效果：
 后台内容管理系统：
 
-![](https://github.com/LouisYZK/Frodo/doc/images/admin.png)
+![](doc/images/admin.png)
 
 博客页面：
 
-![](https://github.com/LouisYZK/Frodo/doc/images/index.png)
+![](doc/images/index.png)
 
 动态页面：
 
-![](https://github.com/LouisYZK/Frodo/doc/images/activity.png)
+![](doc/images/activity.png)
 
 
 ## 如何使用？
