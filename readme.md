@@ -15,15 +15,15 @@ Personal Blog via FastAPI.
 ### 效果：
 后台内容管理系统：
 
-![](https://pic.downk.cc/item/5ede28f5c2a9a83be5d9d200.jpg)
+![](doc/images/admin.png)
 
 博客页面：
 
-![](https://pic.downk.cc/item/5ede2927c2a9a83be5da13ca.jpg)
+![]((doc/images/index.png)
 
 动态页面：
 
-![](https://pic.downk.cc/item/5ede29a0c2a9a83be5dab690.jpg)
+![]((doc/images/activity.png)
 
 
 ## 如何使用？
