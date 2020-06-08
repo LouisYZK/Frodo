@@ -19,11 +19,11 @@ Personal Blog via FastAPI.
 
 博客页面：
 
-![]((doc/images/index.png)
+![](doc/images/index.png)
 
 动态页面：
 
-![]((doc/images/activity.png)
+![](doc/images/activity.png)
 
 
 ## 如何使用？
