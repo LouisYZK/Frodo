@@ -12,6 +12,20 @@ Personal Blog via FastAPI.
 
 管理后台界面参考使用 [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
 
+### 效果：
+后台内容管理系统：
+
+![](https://pic.downk.cc/item/5ede28f5c2a9a83be5d9d200.jpg)
+
+博客页面：
+
+![](https://pic.downk.cc/item/5ede2927c2a9a83be5da13ca.jpg)
+
+动态页面：
+
+![](https://pic.downk.cc/item/5ede29a0c2a9a83be5dab690.jpg)
+
+
 ## 如何使用？
 ### 本地部署
 依赖要求

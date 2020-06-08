@@ -132,7 +132,11 @@ class Activity(CommentMixin, ReactMixin, BaseModel):
             data = await kls.cache(id=self.target_id)
         if kls is None:
             return
-        return await kls(**data).to_async_dict(**data)
+        target = await kls(**data).to_async_dict(**data)
+        if self.target_kind == config.K_POST:
+            target.content = ''
+            target.html_content = ''
+        return target
 
     @property
     async def action(self):
@@ -166,7 +170,7 @@ class Activity(CommentMixin, ReactMixin, BaseModel):
             target = await self.target
             attachments = [
                 asdict(Link(url=target.url, title=target.title, 
-                            abstract=target.summary))
+                            abstract=''))
             ]
         else:
             attachments = []
