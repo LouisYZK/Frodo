@@ -40,7 +40,7 @@ module.exports = {
             ...['/auth', '/api', '/static'].reduce(
                 (acc, ctx) => ({
                     ...acc,
-                    [ctx]: { target: 'http://127.0.0.1:8001',
+                    [ctx]: { target: 'http://127.0.0.1:8003',
                              changeOrigin: true },
                 }),
                 {}
