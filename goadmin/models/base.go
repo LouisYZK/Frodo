@@ -1,26 +1,24 @@
 package models
 
-
-
 import (
-	"log"
 	"fmt"
-	"github.com/jinzhu/gorm"
-  _ "github.com/jinzhu/gorm/dialects/mysql"
 	"goadmin/setting"
-)
+	"log"
 
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
+)
 
 var db *gorm.DB
 
 type Model struct {
-	ID int `gorm:"primary_key" json:"id"`
+	ID        int `gorm:"primary_key" json:"id"`
 	CreatedOn int `json:"created_on"`
 }
 
 func init() {
 	var (
-		err error
+		err                          error
 		dbName, user, password, host string
 	)
 
@@ -48,7 +46,6 @@ func CloseDB() {
 	defer db.Close()
 }
 
-
 // func GetAll(items interface{}) interface{}{
 // 	db.Find(items)
 // 	return items
@@ -59,7 +56,6 @@ func CloseDB() {
 // 	return
 // }
 
-
 // func First(table interface{} , id int) interface{} {
 // 	db.Find(table, id)
 // 	return table
@@ -68,4 +64,3 @@ func CloseDB() {
 // func Filter(table interface{}, maps interface{}) {
 // 	...
 // }
-
