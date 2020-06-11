@@ -1,20 +1,18 @@
 package models
 
-type UserBase struct {
-	Model
-	Email  string `json:"email"`
-	Name   string `json:"name"`
-	Avatar string `json:"avatar"`
-	Active bool   `json:"active"`
-}
+import "time"
 
-type UserCreate struct {
-	UserBase
+type User struct {
+	Model
+	Email    string `json:"email"`
+	Name     string `json:"name"`
+	Avatar   string `json:"avatar"`
+	Active   bool   `json:"active"`
 	Password string `json:"password"`
 }
 
-type User struct {
-	UserBase
+type UserReturn struct {
+	User
 	AvatarUrl string `json:"avatar_url"`
 }
 
@@ -28,19 +26,22 @@ func GetUsersTotal(maps interface{}) (count int) {
 	return
 }
 
-func GetUserById(id int) (user User) {
-	db.Where("id=?", id).First(&user)
-	user.AvatarUrl = "/static/upload/" + user.Avatar
-	return
+func GetUserById(id int) UserReturn {
+	user := new(User)
+	db.Where("id=?", id).First(user)
+	userReturn := UserReturn{User: *user, AvatarUrl: "/static/upload/" + user.Avatar}
+	return userReturn
 }
 
 func CreateUser(data map[string]interface{}) bool {
-	db.Create(&UserCreate{
+	user := User{
 		Email:    data["email"].(string),
 		Name:     data["name"].(string),
 		Avatar:   data["avatar"].(string),
-		Password: data["password"].(string),
+		Password: hashPassword(data["password"].(string)),
 		Active:   data["active"].(bool),
-	})
+	}
+	user.CreatedAt = time.Now()
+	db.Create(&user)
 	return true
 }

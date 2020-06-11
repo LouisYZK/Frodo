@@ -4,3 +4,5 @@ alembic/versions/*
 static/upload/*
 *.out
 venv/*
+admin/node_modules
+activity/node_modules

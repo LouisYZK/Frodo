@@ -14,6 +14,7 @@ var (
 	DbPort     string
 	DbDatabase string
 	DbCharset  string
+	JwtSecret  string
 )
 
 func init() {
@@ -27,4 +28,6 @@ func init() {
 	DbPort = Cfg.Section("database").Key("port").MustString("")
 	DbDatabase = Cfg.Section("database").Key("db").MustString("")
 	DbCharset = Cfg.Section("database").Key("charset").MustString("")
+
+	JwtSecret = Cfg.Section("security").Key("jwt_secret").MustString("")
 }

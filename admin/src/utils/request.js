@@ -5,7 +5,8 @@ import { getToken } from '@/utils/auth'
 
 // create an axios instance
 const service = axios.create({
-  baseURL: process.env.BASE_API, // api 的 base_url
+  baseURL: "http://202.117.47.47:8003", // api 的 base_url
+  withCredentials: true,
   timeout: 5000 // request timeout
 })
 
@@ -20,7 +21,7 @@ service.interceptors.request.use(
   },
   error => {
     // Do something with request error
-    console.log(error) // for debug
+    console.log(error, error.response.data.message, '测试') // for debug
     Promise.reject(error)
   }
 )

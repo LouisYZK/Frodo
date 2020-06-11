@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"goadmin/setting"
 	"log"
+	"time"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -12,8 +13,8 @@ import (
 var db *gorm.DB
 
 type Model struct {
-	ID        int `gorm:"primary_key" json:"id"`
-	CreatedOn int `json:"created_on"`
+	ID        int       `gorm:"primary_key" json:"id"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 func init() {
