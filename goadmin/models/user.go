@@ -17,22 +17,25 @@ type UserReturn struct {
 }
 
 func GetUsers(pageNum int, pageSize int, maps interface{}) (users []User) {
-	db.Where(maps).Offset(pageNum).Limit(pageSize).Find(&users)
+	DB.Where(maps).Offset(pageNum).Limit(pageSize).Find(&users)
 	return
 }
 
+// GetUsersTotal get number of users
 func GetUsersTotal(maps interface{}) (count int) {
-	db.Model(&User{}).Where(maps).Count(&count)
+	DB.Model(&User{}).Where(maps).Count(&count)
 	return
 }
 
-func GetUserById(id int) UserReturn {
+// GetUserByID get user by id
+func GetUserByID(id int) UserReturn {
 	user := new(User)
-	db.Where("id=?", id).First(user)
+	DB.Where("id=?", id).First(user)
 	userReturn := UserReturn{User: *user, AvatarUrl: "/static/upload/" + user.Avatar}
 	return userReturn
 }
 
+// CreateUser add new user
 func CreateUser(data map[string]interface{}) bool {
 	user := User{
 		Email:    data["email"].(string),
@@ -42,6 +45,35 @@ func CreateUser(data map[string]interface{}) bool {
 		Active:   data["active"].(bool),
 	}
 	user.CreatedAt = time.Now()
-	db.Create(&user)
+	DB.Create(&user)
 	return true
+}
+
+func UpdateUser(data map[string]interface{}) (user User) {
+	DB.Where("id = ?", data["id"].(int)).First(&user)
+	user.Name = data["name"].(string)
+	user.Password = hashPassword(data["password"].(string))
+	user.Email = data["email"].(string)
+	user.Avatar = data["avatar"].(string)
+	DB.Save(&user)
+	return user
+}
+
+// GetUserInfo Retrun User info
+func GetUserInfo(token string) (*User, error) {
+	claims, err := ParseToken(token)
+	if err != nil {
+		return nil, err
+	}
+
+	name := claims.Username
+	user := new(User)
+	DB.Where("name=?", name).First(user)
+	return user, err
+}
+
+// DeleteUser delete user by id
+func DeleteUser(userID int) {
+	user := new(User)
+	DB.Where("id=?", userID).Delete(user)
 }

@@ -2,11 +2,14 @@ package models
 
 import (
 	"fmt"
+	"net/http"
+	"strings"
 	"time"
 
 	"goadmin/setting"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -71,7 +74,39 @@ func checkPassword(plainPwd, hashPwd string) bool {
 
 func CheckAuth(username, password string) bool {
 	user := new(User)
-	db.Select("password").Where(User{Name: username}).First(user)
+	DB.Select("password").Where(User{Name: username}).First(user)
 	hashedPwd := user.Password
 	return checkPassword(password, hashedPwd)
+}
+
+func JWT() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var code int
+		var data interface{}
+
+		code = 200
+		token := c.GetHeader("Authorization")
+		if token == "" {
+			code = 401
+		} else {
+			jwtToken := strings.Split(token, " ")[1]
+			claims, err := ParseToken(jwtToken)
+			if err != nil {
+				code = 401
+			} else if time.Now().Unix() > claims.ExpiresAt {
+				code = 401
+			}
+		}
+
+		if code != 200 {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"code": code,
+				"msg":  "not authorization",
+				"data": data,
+			})
+
+			c.Abort()
+			return
+		}
+	}
 }
