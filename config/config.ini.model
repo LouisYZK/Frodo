@@ -14,7 +14,7 @@ jwt_algorithm = HS256
 username = root
 password = 750750750
 port = 3306
-db = fast_blog
+db = go_admin
 charset = utf8
 
 [redis]
