@@ -37,6 +37,9 @@ func InitRouter() *gin.Engine {
 		apiv1.GET("/posts", ListPosts)
 		apiv1.GET("/post/:id", GetPostByID)
 		apiv1.GET("/tags", ListTags)
+		apiv1.POST("/post/new", CreatePost)
+		apiv1.PUT("/post/:id", UpdatePost)
+		apiv1.DELETE("/post/:id", DeletePost)
 	}
 
 	r.POST("/auth", GetAuth)
@@ -178,6 +181,45 @@ func ListPosts(c *gin.Context) {
 func GetPostByID(c *gin.Context) {
 	id := com.StrTo(c.Param("id")).MustInt()
 	c.JSON(http.StatusOK, models.GetPostById(id))
+}
+
+func CreatePost(c *gin.Context) {
+	data := map[string]interface{}{
+		"title":       c.PostForm("title"),
+		"slug":        c.PostForm("slug"),
+		"summary":     c.DefaultPostForm("summary", ""),
+		"content":     c.PostForm("content"),
+		"type":        com.StrTo(c.PostForm("type")).MustInt(),
+		"can_comment": com.StrTo(c.PostForm("can_comment")).MustInt(),
+		"author_id":   com.StrTo(c.PostForm("author_id")).MustInt(),
+		"tags":        c.PostFormArray("tags"),
+		"status":      com.StrTo(c.PostForm("status")).MustInt(),
+	}
+	models.CreatePost(data)
+	c.JSON(http.StatusOK, gin.H{"msg": "ok"})
+}
+
+func UpdatePost(c *gin.Context) {
+	id := com.StrTo(c.Param("id")).MustInt()
+	data := map[string]interface{}{
+		"title":       c.PostForm("title"),
+		"slug":        c.PostForm("slug"),
+		"summary":     c.DefaultPostForm("summary", ""),
+		"content":     c.PostForm("content"),
+		"type":        com.StrTo(c.PostForm("type")).MustInt(),
+		"can_comment": com.StrTo(c.PostForm("can_comment")).MustInt(),
+		"author_id":   com.StrTo(c.PostForm("author_id")).MustInt(),
+		"tags":        c.PostFormArray("tags"),
+		"status":      com.StrTo(c.PostForm("status")).MustInt(),
+	}
+	models.UpdatePost(id, data)
+	c.JSON(http.StatusOK, gin.H{"msg": "ok"})
+}
+
+func DeletePost(c *gin.Context) {
+	id := com.StrTo(c.Param("id")).MustInt()
+	models.DeletePost(id)
+	c.JSON(http.StatusOK, gin.H{"r": 1})
 }
 
 func main() {

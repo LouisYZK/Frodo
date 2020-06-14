@@ -9,12 +9,15 @@ import (
 var (
 	Cfg *ini.File
 
-	DbUsername string
-	DbPwd      string
-	DbPort     string
-	DbDatabase string
-	DbCharset  string
-	JwtSecret  string
+	DbUsername       string
+	DbPwd            string
+	DbPort           string
+	DbDatabase       string
+	DbCharset        string
+	JwtSecret        string
+	RedisURL         string
+	RedisPort        string
+	PythonServerPort string
 )
 
 func init() {
@@ -30,4 +33,8 @@ func init() {
 	DbCharset = Cfg.Section("database").Key("charset").MustString("")
 
 	JwtSecret = Cfg.Section("security").Key("jwt_secret").MustString("")
+
+	RedisURL = Cfg.Section("redis").Key("redis_url").MustString("")
+	RedisPort = Cfg.Section("redis").Key("port").MustString("")
+	PythonServerPort = Cfg.Section("port").Key("fastapi").MustString("")
 }

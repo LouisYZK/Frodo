@@ -9,6 +9,7 @@ from starlette.middleware.sessions import SessionMiddleware
 import typing
 from typing import Optional
 from models import schemas, user
+from models.activity import create_activity_after_post_created
 from views import admin, index, blog, comment, activity
 from ext import mako, oauth2_scheme
 import config
@@ -21,11 +22,11 @@ mako.init_app(app)
 
 app.mount('/static/', StaticFiles(directory='static'), name='static')
 app.add_middleware(SessionMiddleware, secret_key='fast')
-# app.include_router(
-#     admin.router,
-#     prefix='/api'
-# )
-# app.include_router(index.router)
+app.include_router(
+    admin.router,
+    prefix='/api'
+)
+app.include_router(index.router)
 app.include_router(blog.router)
 app.include_router(comment.router, prefix='/j')
 app.include_router(activity.router, prefix='/j')
@@ -36,26 +37,26 @@ async def admin(request: Request):
     return {}
 
 
-# @app.middleware('http')
-# async def process_auth(req: Request, call_next):
-#     """ modfiy the request body of authentication """
-#     if str(req.url).endswith('/auth') and req.headers['referer'].endswith('admin'):
-#         new_header = req.headers.mutablecopy()
-#         new_header['content-type'] = 'application/x-www-form-urlencoded'
-#         req.scope['headers'] = new_header.raw
-#         recv = await req.receive()
-#         async def custome_recv():
-#             body_dct = json.loads(recv['body'].decode())
-#             recv['body'] = f"username={body_dct['username']}&password={body_dct['password']}".encode()
-#             return recv
-#         new_req = Request(req.scope, custome_recv)
-#         response = await call_next(new_req)
-#     elif req.scope['path'] == '/' or 'page' in req.scope['path']:
-#         req.state.partials = config.partials
-#         response = await call_next(req)
-#     else:
-#         response = await call_next(req)
-#     return response
+@app.middleware('http')
+async def process_auth(req: Request, call_next):
+    """ modfiy the request body of authentication """
+
+    if req.scope['path'] == '/' or 'page' in req.scope['path']:
+        req.state.partials = config.partials
+        response = await call_next(req)
+    else:
+        response = await call_next(req)
+    return response
+
+@app.post("/api/activity")
+async def add_post_activity(request: Request):
+    """ Server for Golang admin to Create Activity
+    """
+    body = await request.json()
+    post_id = body["post_id"]
+    user_id = body["user_id"]
+    await create_activity_after_post_created(post_id, user_id)
+    return {"status": "ok"}
 
 
 # @app.post('/auth')

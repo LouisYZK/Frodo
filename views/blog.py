@@ -99,7 +99,6 @@ async def index(request: Request, page=1):
             tags = await _tags()
             random.shuffle(tags)
             json.update({'tags': tags})
-            
     return json
     
 

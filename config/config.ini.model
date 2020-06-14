@@ -19,6 +19,7 @@ charset = utf8
 
 [redis]
 redis_url = redis://localhost:6379
+port = 6379
 
 [memcached]
 memcached_host = '127.0.0.1'
@@ -29,3 +30,7 @@ oauth_redirect_path = /oauth
 redirect_uri = http://202.117.47.47:8001/oauth
 client_id = ebaa7eee58062ff0c923
 client_secret = a0e37ffe4764125604f15654260347f72adc93cb
+
+[port]
+golang = 8003
+fastapi = 8004

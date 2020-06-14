@@ -1,7 +1,13 @@
 package models
 
 import (
+	"bytes"
+	"fmt"
+	"goadmin/setting"
+	"net/http"
 	"strconv"
+
+	"github.com/athom/goset"
 )
 
 type Post struct {
@@ -10,7 +16,7 @@ type Post struct {
 	AuthorID   int    `json:"author_id"`
 	Slug       string `json:"slug"`
 	Summary    string `json:"summary"`
-	CanComment bool   `json:"can_comment"`
+	CanComment int    `json:"can_comment"`
 	Type       int    `json:"type"`
 	Status     int    `json:"status"`
 }
@@ -47,14 +53,79 @@ func (post Post) GetTags() (tags []Tag) {
 	return
 }
 
-func (post Post) GetAuthor() (user User) {
+func (post Post) PostUrl() string {
+	postID := strconv.Itoa(post.ID)
+	return "Post/" + postID
+}
+
+func (post *Post) GetAuthor() (user User) {
 	DB.Select("id, name").Where("id = ?", post.AuthorID).First(&user)
 	return
 }
 
-func (post Post) PostUrl() string {
-	postID := strconv.Itoa(post.ID)
-	return "Post/" + postID
+func (post *Post) SetProps(key string, value interface{}) {
+	key = post.PostUrl() + "/props/" + key
+	RedisClient.Set(key, value, 0)
+}
+
+func (post Post) GetProps(key string) interface{} {
+	key = post.PostUrl() + "/props/" + key
+	val, err := RedisClient.Get(key).Result()
+	if err != nil {
+		panic(err)
+	}
+	return val
+}
+
+func (post *Post) UpdateTags(tagNames []string) {
+	var originTags []Posttag
+	var originTagNames []string
+
+	DB.Where("post_id = ?", post.ID).Find(&originTags)
+	for _, item := range originTags {
+		var tag Tag
+		DB.Select("name").Where("id = ?", item.TagID).First(&tag)
+		originTagNames = append(originTagNames, tag.Name)
+	}
+	_, _, deleteTagNames, addTagNames := goset.Difference(originTagNames, tagNames)
+	for _, tag := range addTagNames.([]string) {
+		go CreateTags(tag)
+		go CreatePostTags(post.ID, tag)
+	}
+	for _, tag := range deleteTagNames.([]string) {
+		go DeletePostTags(post.ID, tag)
+	}
+}
+
+func CreateTags(tagName string) {
+	tag := new(Tag)
+	DB.Where("name = ?", tagName).First(tag)
+	if tag.ID == 0 {
+		tag.Name = tagName
+		DB.Create(tag)
+	}
+}
+
+func CreatePostTags(postID int, tagName string) {
+	tag := new(Tag)
+	DB.Select("id").Where("name = ?", tagName).First(tag)
+	DB.Create(&Posttag{
+		PostID: postID,
+		TagID:  tag.ID,
+	})
+}
+
+func DeletePostTags(postID int, tagName string) {
+	tag := new(Tag)
+	DB.Select("id").Where("name = ?", tagName).First(tag)
+	pg := Posttag{
+		PostID: postID,
+		TagID:  tag.ID,
+	}
+	DB.Where(&pg).Find(&pg)
+	if pg.ID != 0 {
+		DB.Delete(&pg)
+	}
 }
 
 func GetPostsCount(data interface{}) (count int) {
@@ -94,5 +165,68 @@ func GetPostById(postId int) (post PostDict) {
 	post.Content = ""
 	post.Url = p.PostUrl()
 	post.Tags = tagNames
+	post.Content = p.GetProps("content").(string)
 	return
+}
+
+func CreatePost(data map[string]interface{}) {
+	post := new(Post)
+	post.Title = data["title"].(string)
+	post.Summary = data["summary"].(string)
+	post.Type = data["type"].(int)
+	post.CanComment = data["can_comment"].(int)
+	post.AuthorID = data["author_id"].(int)
+	post.Status = data["status"].(int)
+
+	tags := data["tags"].([]string)
+	content := data["content"]
+	DB.Create(&post)
+
+	fmt.Println(post)
+
+	go post.SetProps("content", content)
+	go post.UpdateTags(tags)
+	go post.Flush()
+	go CreateActivity(post)
+}
+
+func UpdatePost(postID int, data map[string]interface{}) {
+	post := new(Post)
+	post.ID = postID
+	post.Title = data["title"].(string)
+	post.Summary = data["summary"].(string)
+	post.Type = data["type"].(int)
+	post.CanComment = data["can_comment"].(int)
+	post.AuthorID = data["author_id"].(int)
+	post.Status = data["status"].(int)
+
+	DB.Save(post)
+
+	content := data["content"]
+	tags := data["tags"].([]string)
+	go post.SetProps("content", content)
+	go post.UpdateTags(tags)
+	go post.Flush()
+}
+
+func DeletePost(postID int) {
+	var post Post
+	DB.Where("id = ?", postID).First(&post)
+	if post.ID != 0 {
+		DB.Delete(&post)
+		DB.Where("post_id = ?", postID).Delete(Posttag{})
+	}
+	go post.Flush()
+}
+
+func CreateActivity(post *Post) {
+	url := "http://localhost:" + setting.PythonServerPort + "/api/activity"
+	data := `{"post_id": %d, "user_id": %d}`
+	data = fmt.Sprintf(data, post.ID, post.AuthorID)
+	fmt.Println(data)
+	req := bytes.NewBuffer([]byte(data))
+	_, err := http.Post(url, "application/json;charset=utf-8", req)
+	if err != nil {
+		fmt.Print(err)
+	}
 }
