@@ -9,6 +9,8 @@ import (
 
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/unknwon/com"
 )
@@ -19,6 +21,8 @@ func InitRouter() *gin.Engine {
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 	r.Static("/static", "../static")
+
+	// CORS
 	r.Use(cors.New(cors.Config{
 		AllowOriginFunc:  func(origin string) bool { return true },
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "PATCH"},
@@ -26,6 +30,11 @@ func InitRouter() *gin.Engine {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
+
+	// Session Middleware
+	store := cookie.NewStore([]byte("fast"))
+	r.Use(sessions.Sessions("Frodo-Token", store))
+
 	apiv1 := r.Group("/api")
 	apiv1.Use(models.JWT())
 	{
@@ -130,6 +139,9 @@ func GetUserInfo(c *gin.Context) {
 			"msg": "Non authorized!",
 		})
 	} else {
+		session := sessions.Default(c)
+		session.Set("admin_user", user)
+		session.Save()
 		c.JSON(http.StatusOK, user)
 	}
 }

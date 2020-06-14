@@ -246,11 +246,17 @@ The Status api in activity is still reserved.
 
 @router.post('/status')
 async def create_status(request: Request):
-    user = request.session.get('admin_user', {})
+    try:
+        token = request.headers["authorization"].split(" ")[-1]
+        user = await get_current_user(token)
+    except:
+        import traceback
+        traceback.print_exc()
+        user = {}
     if not user:
         return {'r': 0, 'msg': 'Auth required.'}
     data = await request.json()
-    obj, msg = await create_new_status(user.get('id'), data)
+    obj, msg = await create_new_status(user.id, data)
     activity = None if not obj else await obj.to_full_dict()
     return {'r': not bool(obj), 'msg': msg, 'activity': activity}
 

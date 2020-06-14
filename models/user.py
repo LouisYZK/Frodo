@@ -76,7 +76,7 @@ async def get_current_user(token: str):
     )
     try:
         playload = jwt.decode(token, config.JWT_SECRET, algorithms=config.JWT_ALGORITHM)
-        username: str = playload.get('sub')
+        username: str = playload.get('username')
         if username is None:
             raise credentials_exception
         token_data = schemas.TokenData(username=username)
