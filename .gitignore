@@ -4,4 +4,10 @@ alembic/versions/*
 static/upload/*
 *.out
 venv/*
+<<<<<<< HEAD
 gobackend/*
+=======
+admin/node_modules
+activity/node_modules
+*.log
+>>>>>>> go-end

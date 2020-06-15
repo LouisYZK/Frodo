@@ -18,6 +18,8 @@ REDIRECT_URI = config.get('github', 'redirect_uri')
 CLIENT_ID = config.get('github', 'client_id')
 CLIENT_SECRET = config.get('github', 'client_secret')
 
+HOST_PATH = config.get('global', 'host_path')
+
 
 # DB_URL = os.getenv('DB_URL', config.get('database', 'db_url'))
 db_username = config.get('database', 'username')

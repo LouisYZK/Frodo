@@ -6,9 +6,10 @@ const loginByUsername = (username, password) => {
     username,
     password
   }
+  console.log(username, password)
   return request({
     url: '/auth',
-    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    // headers: { 'content-type': 'application/x-www-form-urlencoded' },
     method: 'post',
     data
   })

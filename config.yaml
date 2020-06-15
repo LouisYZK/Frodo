@@ -1,7 +1,7 @@
 partials:
   - name: about_me
     title: 'AboutMe'
-    avatar: 'me.png'  # = /static/upload/me.jpg
+    avatar: '5ee0e6a0b17d8fa6.png'  # = /static/upload/me.jpg
     intro: '你看到了我哟~'
     sns:
     - github: 'LouisYZK'

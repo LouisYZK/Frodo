@@ -1,16 +1,34 @@
-# Frodo
-Personal Blog via FastAPI.
+# Frodo V2.0
+Personal Blog via FastAPI and Golang/gin
+
 ## Overview
+相较于v1.0，新版本加入了新语言和框架`Golang/gin`, 使用go语言重写了`admin`后台模块用到的api，前台依旧由python的框架支持。
+
+### why fastapi?
+
 2019年初开始，`Fastapi` 差不多成为了python届的网红，这个号称使用了异步、最快、集各大框架之有点于一身的框架需要实践检验。 不得不说他的文档写的很迷人，除了名字中体现的性能优势外，他集合了`Flask`, `Django` 中的很多特点，又直接以restful时代下的`OpenAPI`为默认接口标准。自带集成`swagger-docs` 不论是前端或是后端调试起来都很方便。
 
-言归正传，`Frodo`是一个使用了python异步生态开发的个人博客，使用的技术栈如下：
-- Web框架：fastapi
-- ORM: sqlalchemy + 异步 databases (FastAPI 推荐做法)
-- KV数据库: aioredis
-- 模板: Mako/FastAPI-Mako
+### why golang?
+
+golang是年轻的语言，设计理念很好地平衡了`C++`和 `javascript/python`等动态语言的优劣，独具特色的`goroutine`设计范式旨在告别多线程式的并发。而web后台和微服务是go语言用的的最多的领域，故我将后台纯api部分拿go来重写。
+
+`Frodo`是一个使用了`python/golang` 异步生态开发的个人博客，使用的技术栈如下：
+
+- 博客页面Web框架：python/fastapi
+- 前台ORM: sqlalchemy + 异步 databases (FastAPI 推荐做法)
+- 前台模板: Mako/FastAPI-Mako
+- python web服务: asgi/uvicorn
+- 后台Web框架: golang/gin
+- 后台ORM: gorm
+- 后台UI: [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
+- KV数据库: redis
+- 缓存: redis/memcached
+- 反向代理: nginx
+- 持久化: mysql
+- 数据库迁移: alembic
+- 认证 JWT
 - python类型检查: pydantic
 
-管理后台界面参考使用 [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
 
 ### 效果：
 后台内容管理系统：
@@ -30,11 +48,13 @@ Personal Blog via FastAPI.
 ### 本地部署
 依赖要求
 - python >=3.7
+- golang >=1.10
+- nginx
 - mysql
 - redis
 - Unbuntu/MacOS (Windows请看Docker版本部署)
 
-首先clone项目
+clone项目
 ```bash
 git clone https://github.com/LouisYZK/Frodo
 ```
@@ -67,15 +87,27 @@ bash migrate.sh
 ```
 python manage.py adduser
 ```
-根据提示输入用户名密码等就ok， 之后就可以启动项目了
+根据提示输入用户名密码等就ok
+
+配置后台
+```
+cd goadmin
+go mod init goadmin
+```
+如果报错请检查go语言是否安装成功。启动web：
+
 ```
 bash start.sh
 ```
-成功启动后（输出信息不报错），首先访问`localhost:8001/admin` 登进管理后台创建几篇文章。或使用
+如果没报错则python和golang的服务都启动了，此时访问python的端口即可看到界面。
+
+如果要在服务器部署，请修改`config.ini.model`的端口和`host_path`项。同时如需要反向代理同时修改nginx配置`nginx.conf`。
+
+成功启动后（输出信息不报错），首先访问`localhost:8004/admin` 登进管理后台创建几篇文章。或使用
 ```
 python manage.py hexo_export.py --dir xx --uname
 ```
-进行markdown文章的批量导入。随后访问`localhost:8001`正常的话可以看到界面。
+进行markdown文章的批量导入。随后访问`localhost:8004`正常的话可以看到界面。
 
 `动态功能` 需要先去`admin`下登录，然后动态页面才会出现发送动态的输入表单。
 
@@ -121,7 +153,7 @@ python manage.py hexo_export.py --dir xx --uname
 - [x] 动态模块 (Activity) 最后的功能模块 2020-06-02
 - [ ] ~~动态集成评论与反馈 _放弃不做了，没意义且麻烦_~~
 - [x] 本地部署测试与文档
-- [ ] Golang重写后台部分API
+- [x] Golang重写后台部分API
 - [ ] Docker虚拟化部署
 - [ ] 整体迁移至Rowsberry
 - [ ] 自动化部署 使用 Ansible
