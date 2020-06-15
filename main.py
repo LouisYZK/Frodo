@@ -40,11 +40,15 @@ async def admin(request: Request):
 @app.middleware('http')
 async def process_auth(req: Request, call_next):
     """ modfiy the request body of authentication """
-
+    req.scope["root_path"] = "zhikai.pro"
+    h_copy = req.headers.mutablecopy()
+    h_copy["host"] = ''
+    req.scope["headers"] = h_copy.raw  
     if req.scope['path'] == '/' or 'page' in req.scope['path']:
         req.state.partials = config.partials
         response = await call_next(req)
     else:
+        
         response = await call_next(req)
     return response
 

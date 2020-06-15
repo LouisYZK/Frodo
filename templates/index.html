@@ -64,5 +64,6 @@ ${ utils.pagination('blog.page', paginatior) }
 <%def name="bottom_script()">
 % if USE_YAML:
   <script src="${ request.url_for('static', path='dist/blog/index.js')}"></script>
+   <!-- <script src="http://zhikai.pro/static/dist/blog/index.js"></script> -->
 % endif
 </%def>

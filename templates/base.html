@@ -65,7 +65,7 @@
 <%def name="more_header()"></%def>
 
 <%def name="doc_head()">
-  <link rel="stylesheet" href="${ app.url_path_for('static', path='css/main.min.css') } ">
+  <link rel="stylesheet" href="${ request.url_for('static', path='css/main.min.css') } ">
   ${self.more_header() | n}
 </%def>
 <%def name="bottom_script()">
