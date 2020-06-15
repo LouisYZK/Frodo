@@ -2,6 +2,7 @@
 debug = True
 author = yzk
 site_title = Zhikai-Yang Space
+host_path = zhikai.pro
 
 [security]
 wtf_csrf_secret_key = 123

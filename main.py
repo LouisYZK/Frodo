@@ -40,7 +40,7 @@ async def admin(request: Request):
 @app.middleware('http')
 async def process_auth(req: Request, call_next):
     """ modfiy the request body of authentication """
-    req.scope["root_path"] = "zhikai.pro"
+    req.scope["root_path"] = config.HOST_PATH
     h_copy = req.headers.mutablecopy()
     h_copy["host"] = ''
     req.scope["headers"] = h_copy.raw  
