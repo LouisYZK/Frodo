@@ -1,7 +1,7 @@
 # Frodo V2.0
-Asynchronoys Personal Blog via FastAPI and Golang/gin
 ![python-version](https://img.shields.io/badge/python-3.7-green)
 ![Frodo-v2.0](https://img.shields.io/badge/tag-v2.0-blue)
+Asynchronoys Personal Blog via FastAPI and Golang/gin
 
 [查看文档~](http://zhikai.pro/html/index.html)
 
