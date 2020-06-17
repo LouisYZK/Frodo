@@ -8,3 +8,4 @@ gobackend/*
 admin/node_modules
 activity/node_modules
 *.log
+/doc/build
