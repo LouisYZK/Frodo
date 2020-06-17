@@ -1,5 +1,9 @@
 # Frodo V2.0
-Personal Blog via FastAPI and Golang/gin
+Asynchronoys Personal Blog via FastAPI and Golang/gin
+![python-version](https://img.shields.io/badge/python-3.7-green)
+![Frodo-v2.0](https://img.shields.io/badge/tag-v2.0-blue)
+
+[查看文档~](http://zhikai.pro/html/index.html)
 
 ## Overview
 相较于v1.0，新版本加入了新语言和框架`Golang/gin`, 使用go语言重写了`admin`后台模块用到的api，前台依旧由python的框架支持。
