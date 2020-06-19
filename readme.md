@@ -64,6 +64,57 @@ golang是年轻的语言，设计理念很好地平衡了`C++`和 `javascript/py
 
 
 ## 如何使用？
+### Docker部署(推荐)
+请确保本地docker及docker-compose可用，以下在`docker-compose-1.25.5`, `MacOS-Majave 15.15`版本测试通过。
+
+#### 修改配置文件
+需要修改的文件为`python_web/config/config.ini.model`和`goadmin/config.ini.model`,
+```
+[global]
+debug = True
+author = yzk
+site_title = Zhikai-Yang Space
+host_path = 202.117.47.47:9080 ## 将此配置改为你的环境入口地址，例如本机为localhost
+```
+剩余的配置，例如各个服务的端口号，如若出现本地占用的情况，情修改`nginx.conf`, `docker-compose.yml` 相应的地方。
+
+#### build镜像
+```
+git clone https://github.com/LouisYZK/Frodo
+cd Frodo
+sh build.sh
+```
+此过程可能需要等待一定时间，过程中需要完成每层镜像的完整构建，如若出现某层因连接超时错误，请检查网络情况或重试。
+
+#### 启动
+```
+docker-compose up ## 启动
+```
+该命令正常会启动5个server, 当5个server均正常运行才可正常使用，可使用命令`docker-compose ps `查看是否正常启动，如果存在退出`Exited`状态的容器，请仔细查看输出的日志和退出的原因。你也可以使用`docker ps -a` 查看启动或退出的容器，使用`docker logs <container_id>` 查看日志。
+
+#### 使用
+启动后，请先创建一个管理员用户：
+```
+docker exec -it $(docker ps | grep frodo/pyweb | awk '{print $1}') python manager.py adduser
+```
+随后根据提示输入账密即可看到创建成功的提示。
+
+接下来请访问`<host_ip>:<nginx_server_port>/admin`, 例如本机环境访问`localhost:9080/admin`, 用你刚才创建的账密登录，即可进入后台。
+
+进入后台请按照UI提示创建几篇文章(post), 而后访问前台`localhost:9080` 观察是否生效。
+
+用户侧边栏个性化配置在`python_web/config.yaml`不必重启`docker-compose`即可生效。
+
+#### 环境测试
+理论上docker与部署环境无依赖关系。目前已经测试的环境有：
+- [x] Ubuntu LTS 16.06
+- [x] MacOS Majave 15
+- [ ] Windows ...
+- [ ] Rowsberry ARM ...
+
+欢迎大家部署测试~
+
+
 ### 本地部署
 依赖要求
 - python >=3.7
@@ -132,7 +183,6 @@ python manage.py hexo_export.py --dir xx --uname
 
 此外，`localhost:8001/docs` 是项目所有的API文档和调试入口，这是`fastapi`自动生成的，如果你在开发时严格执行`OpenAPI` 规范，那么这份文档可以直接输出供他人参考。
  
-### Docker部署
 
 ## 参考
 项目的架构和功能设计很多参考了dongweiming的项目 [lyana](https://github.com/dongweiming/lyanna).
