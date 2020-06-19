@@ -26,8 +26,12 @@ Base = declarative_base()
 
 class AioDataBase():
     async def __aenter__(self):
-        db = databases.Database(DB_URL.replace('+pymysql', ''))
-        await db.connect()
+        import traceback
+        try:
+            db = databases.Database(DB_URL.replace('+pymysql', ''))
+            await db.connect()
+        except:
+            traceback.print_exc()
         self.db = db
         return db
 

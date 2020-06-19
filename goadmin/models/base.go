@@ -30,7 +30,7 @@ func init() {
 	dbName = setting.DbDatabase
 	user = setting.DbUsername
 	password = setting.DbPwd
-	host = "localhost:" + setting.DbPort
+	host = setting.DbHost + ":" + setting.DbPort
 
 	DB, _ = gorm.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local",
 		user,
@@ -47,7 +47,7 @@ func init() {
 	DB.DB().SetMaxOpenConns(100)
 
 	RedisClient = redis.NewClient(&redis.Options{
-		Addr:     "localhost:" + setting.RedisPort,
+		Addr:     setting.RedisURL,
 		DB:       0,
 		Password: "",
 		PoolSize: 10,

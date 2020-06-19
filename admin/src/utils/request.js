@@ -5,7 +5,7 @@ import { getToken } from '@/utils/auth'
 
 // create an axios instance
 const service = axios.create({
-  baseURL: "http://zhikai.pro", // api 的 base_url
+  baseURL: "http://202.117.47.47:9080", // api 的 base_url, 部署时需为nginx(网关)的地址
   withCredentials: true,
   timeout: 5000 // request timeout
 })

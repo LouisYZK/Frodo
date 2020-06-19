@@ -1,11 +1,12 @@
 *.pyc
 .vscode/*
-alembic/versions/*
+python_web/alembic/versions/*
 static/upload/*
 *.out
-venv/*
+python_web/venv/*
 gobackend/*
-admin/node_modules
+admin/node_modules/*
 activity/node_modules
 *.log
 /doc/build
+

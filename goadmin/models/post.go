@@ -6,6 +6,7 @@ import (
 	"goadmin/setting"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/athom/goset"
 )
@@ -89,30 +90,39 @@ func (post *Post) UpdateTags(tagNames []string) {
 	}
 	_, _, deleteTagNames, addTagNames := goset.Difference(originTagNames, tagNames)
 	for _, tag := range addTagNames.([]string) {
-		go CreateTags(tag)
-		go CreatePostTags(post.ID, tag)
+		HasTagID := make(chan bool)
+		go CreateTags(tag, HasTagID)
+		go CreatePostTags(post.ID, tag, HasTagID)
 	}
 	for _, tag := range deleteTagNames.([]string) {
 		go DeletePostTags(post.ID, tag)
 	}
 }
 
-func CreateTags(tagName string) {
+func CreateTags(tagName string, HasTagID chan bool) {
 	tag := new(Tag)
 	DB.Where("name = ?", tagName).First(tag)
 	if tag.ID == 0 {
 		tag.Name = tagName
 		DB.Create(tag)
+		HasTagID <- true
 	}
 }
 
-func CreatePostTags(postID int, tagName string) {
-	tag := new(Tag)
-	DB.Select("id").Where("name = ?", tagName).First(tag)
-	DB.Create(&Posttag{
-		PostID: postID,
-		TagID:  tag.ID,
-	})
+func CreatePostTags(postID int, tagName string, HasTagID chan bool) {
+	for {
+		select {
+		case <-HasTagID:
+			tag := new(Tag)
+			DB.Select("id").Where("name = ?", tagName).First(tag)
+			DB.Create(&Posttag{
+				PostID: postID,
+				TagID:  tag.ID,
+			})
+		default:
+			time.Sleep(500 * time.Millisecond)
+		}
+	}
 }
 
 func DeletePostTags(postID int, tagName string) {
@@ -220,7 +230,7 @@ func DeletePost(postID int) {
 }
 
 func CreateActivity(post *Post) {
-	url := "http://localhost:" + setting.PythonServerPort + "/api/activity"
+	url := "http://" + setting.PythonServerHost + ":" + setting.PythonServerPort + "/api/activity"
 	data := `{"post_id": %d, "user_id": %d}`
 	data = fmt.Sprintf(data, post.ID, post.AuthorID)
 	fmt.Println(data)

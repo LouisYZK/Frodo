@@ -6,6 +6,7 @@ from pathlib import Path
 
 
 HERE = Path(__file__).parent.absolute()
+print(HERE)
 config_dir = HERE / 'config/config.ini.model'
 config = configparser.ConfigParser()
 config.read(config_dir)
@@ -20,14 +21,18 @@ CLIENT_SECRET = config.get('github', 'client_secret')
 
 HOST_PATH = config.get('global', 'host_path')
 
+WEB_PORT = config.get('port', "fastapi")
+
 
 # DB_URL = os.getenv('DB_URL', config.get('database', 'db_url'))
+db_host = config.get('database', 'host')
 db_username = config.get('database', 'username')
 db_pwd = config.get('database', 'password')
 db_port = config.get('database', 'port')
 db = config.get('database', 'db')
 charset = config.get('database', 'charset')
-DB_URL = f'mysql+pymysql://{db_username}:{db_pwd}@localhost:{db_port}/{db}?charset={charset}'
+DB_URL = f'mysql+pymysql://{db_username}:{db_pwd}@{db_host}:{db_port}/{db}?charset={charset}'
+print(DB_URL)
 REDIS_URL = os.getenv('REDIS_URL', 
             config.get('redis', 'redis_url'))
 DEBUG = os.getenv('DEBUG', config.get('global', 'debug')).lower() \

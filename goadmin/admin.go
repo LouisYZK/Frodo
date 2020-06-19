@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"goadmin/models"
+	"goadmin/setting"
 	"log"
 	"net/http"
 	"time"
@@ -236,5 +237,5 @@ func DeletePost(c *gin.Context) {
 
 func main() {
 	r := InitRouter()
-	r.Run("0.0.0.0:8003")
+	r.Run("0.0.0.0:" + setting.WebPort)
 }

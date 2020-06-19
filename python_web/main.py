@@ -6,21 +6,25 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
 from starlette.datastructures import Headers
 from starlette.middleware.sessions import SessionMiddleware
+import uvicorn
 import typing
 from typing import Optional
-from models import schemas, user
+from models import Base, schemas, user
 from models.activity import create_activity_after_post_created
 from views import admin, index, blog, comment, activity
-from ext import mako, oauth2_scheme
+from ext import mako, oauth2_scheme, db_engine
 import config
+
 
 
 app = FastAPI()
 app.__name__ = 'fast_blog'
 mako.init_app(app)
 
+target_metadata = Base.metadata
+target_metadata.create_all(db_engine)
 
-app.mount('/static/', StaticFiles(directory='static'), name='static')
+app.mount('/static/', 'static', name='static')
 app.add_middleware(SessionMiddleware, secret_key='fast')
 app.include_router(
     admin.router,
@@ -82,4 +86,7 @@ async def add_post_activity(request: Request):
 #         'refresh_token': access_token,
 #         'token_type': 'bearer'
 #     }
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=int(config.WEB_PORT))
 

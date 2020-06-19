@@ -85,8 +85,7 @@ async def archive(request: Request, year):
 @router.get('/', name='index', response_class=HTMLResponse)
 @mako.template('index.html')
 async def index(request: Request, page=1):
-    print("INDEX", request.scope)
-    print(request.url_for('static', path='dist/blog/index.js'))
+    print(request.scope)
     start = (page - 1) * config.PER_PAGE
     posts = await Post.get_all(with_page=False)
     total = len(posts)
