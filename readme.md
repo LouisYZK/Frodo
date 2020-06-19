@@ -1,6 +1,7 @@
 # Frodo V2.0
 ![python-version](https://img.shields.io/badge/python-3.7-green)
 ![Frodo-v2.0](https://img.shields.io/badge/tag-v2.0-blue)
+
 Asynchronoys Personal Blog via FastAPI and Golang/gin
 
 [查看文档~](http://zhikai.pro/html/index.html)
@@ -15,6 +16,8 @@ Asynchronoys Personal Blog via FastAPI and Golang/gin
 ### why golang?
 
 golang是年轻的语言，设计理念很好地平衡了`C++`和 `javascript/python`等动态语言的优劣，独具特色的`goroutine`设计范式旨在告别多线程式的并发。而web后台和微服务是go语言用的的最多的领域，故我将后台纯api部分拿go来重写。
+
+### techniques selection
 
 `Frodo`是一个使用了`python/golang` 异步生态开发的个人博客，使用的技术栈如下：
 
@@ -33,6 +36,18 @@ golang是年轻的语言，设计理念很好地平衡了`C++`和 `javascript/py
 - 认证 JWT
 - python类型检查: pydantic
 
+### features
+- 配套后台实现对文章、用户等的增删改查。
+- 后台支持 markdown 预览与编辑
+- 前端语法高亮、LaTeX 数学公式渲染、目录生成
+- 支持文章搜索（模糊）
+- 支持 Github 登录进行评论和反馈
+- 支持 Hexo 或其他源 mardown 文章批量导入
+- 支持个人设置（头像与介绍）
+- 定制化导航栏，可以自行定义 page
+- 支持文章中渲染 github-cards
+- 支持个人「动态」类似知乎想法
+- 支持Dokcer跨平台部署
 
 ### 效果：
 后台内容管理系统：
@@ -130,20 +145,8 @@ python manage.py hexo_export.py --dir xx --uname
 - 重写前端模板API
   
 ## API
-| url | method | params | response | info|
-|  --- | --- | --- | --- | --- |
-|  api/posts  |   GET | limit:1<br>page: 页面数 <br> with_tag<br>  |  {'items': [post.*.,], 'total': number}  | 查询Posts<br> 需要登录| 
-|  api/posts/new| POST | FormData <br> title <br> slug<br> summary <br> content <br> is_page <br> can_comment <br> author_id <br> status| x| x|
-| api/post/<post_id>| GET/PUT/DELETE| x | items.*.created_at <br> items.\*.author_id <br> items.\*.slug <br> items.\*.id <br> items.\*.title <br> items.\*.type <br> items.\*._pageview <br> items.\*.summary <br> status <br> items.\*.can_comment <br> items.\*.author_name <br> items.\*.tags.\* <br> total|需要登录|
-| api/users | GET | x | {'items':[user.*.,], 'total': num} | 需要登录|
-| api/user/new | POST | FormData <br>active <br> name<br>email <br>password <br> avatar: avatar.png | x | 需要登录|
-| api/user/<user_id> | GET/PUT | x | user.created_at <br> user.avatar <br> user.id <br> user.active <br> user.email <br> user.name <br> user.url(/user/3/)<br> ok (true) |需要登录 |
-| api/upload| POST/OPTIONS |x | x | na|
-| api/user/search | GET | name | items.\*.id <br> items.\*.name | 需要登录|
-| api/tags | GET | x | items.*.name |需要登录 |
-| api/user/info | GET | user (token)| user{'name', 'avartar'} | 相当于current_user|
-| api/get_url_info | POST | url | x | na |
-| api/status | POST | text, url, fids = ["png", ...] | r, msg, activity.id, activity.layout, activity.n_comments, activity.n_likes, activity.created_at, activity.can_comment, activity.attachments.\*.layout, activity.attachments.\*.url, activity.attachments.\*.title, activity.attachments.*.size |
+
+见文档
 
 ## ToDo
 - [x] 用户模块及认证模块完成 2020-05-17
@@ -156,13 +159,13 @@ python manage.py hexo_export.py --dir xx --uname
 - [x] 阅读量 (require: cached) 2020-05-31
 - [x] 动态模块 (Activity) 最后的功能模块 2020-06-02
 - [ ] ~~动态集成评论与反馈 _放弃不做了，没意义且麻烦_~~
-- [x] 本地部署测试与文档
-- [x] Golang重写后台部分API
-- [ ] Docker虚拟化部署
-- [ ] 整体迁移至Rowsberry
-- [ ] 自动化部署 使用 Ansible
+- [x] 本地部署测试与文档 2020-06-10
+- [x] Golang重写后台部分API 2020-06-12
+- [x] Docker虚拟化部署 2020-06-18
+- [ ] 整体迁移至Rowsberry ? 在考虑树莓派的可行性
+- [ ] 自动化部署 使用 Ansible 单机必要性？
 - [ ] 更换前端 (require: Modify Hexo Theme to Mako) 延后
-- [ ] 文档和心得 
+- [x] 文档和心得 2020-06-18
 
 
   
