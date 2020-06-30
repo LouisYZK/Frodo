@@ -1,4 +1,4 @@
-[zh-中文](readme_cn.md)
+[zh-中文](./readme_zh.md)
 
 # Frodo V2.0
 ![python-version](https://img.shields.io/badge/python-3.7-green)
@@ -48,12 +48,9 @@ Frodo's technique selection is as follows:
 `fastapi` is a python web framework gathering features of flask, django. It supports both asynchronous checkpoints and normal blog ways. Using `uvicorn` to support eventloop make fastapi faster. More excellent feature is the pydantic and data scheme, encouraging to follow the OpenAPI rules, the `swagger-docs` will be generated automatically.
 
 ### why golang?
-
-golang是年轻的语言，设计理念很好地平衡了`C++`和 `javascript/python`等动态语言的优劣，独具特色的`goroutine`设计范式旨在告别多线程式的并发。而web后台和微服务是go语言用的的最多的领域，故我将后台纯api部分拿go来重写。
-
 python service use asynchornous asyncio ecosystem. Golang supports asynchronous primitively. `goroutine` is like python's corouine can be controlled by eventloop. Admin's api is very easy to rebuilt via golang.
 
-### 效果：
+### Display：
 Admin paltform：
 
 ![](doc/images/admin.png)
