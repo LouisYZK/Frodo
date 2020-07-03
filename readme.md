@@ -8,6 +8,7 @@ Frodo is a personal blog using python and golang's **asynchronous** technique.
 
 [Document(only Chinese now and Eng version will be soon)~](http://zhikai.pro/html/index.html)
 
+![](http://zhikai.pro/static/img/frodo-min.gif)
 ## Overview
 
 v2.0 add new language golang to rebuild the `admin` module's api, blog's front end page is still rendered by python.
