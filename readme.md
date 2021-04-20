@@ -118,7 +118,6 @@ docker exec -it $(docker ps | grep frodo/pyweb | awk '{print $1}') python manage
 ```
 confirm the usernam and password according to the hints
 
-接下来请访问`<host_ip>:<nginx_server_port>/admin`, 例如本机环境访问`localhost:9080/admin`, 用你刚才创建的账密登录，即可进入后台。
 
 then, you can visit `<host_ip>:<nginx_server_port>/admin`, for example `localhost:9080/admin` on local PC. Using the accounts you've just created to enter the admin platform.
 
