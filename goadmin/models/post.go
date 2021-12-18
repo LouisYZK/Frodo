@@ -106,6 +106,8 @@ func CreateTags(tagName string, HasTagID chan bool) {
 		tag.Name = tagName
 		DB.Create(tag)
 		HasTagID <- true
+	} else {
+		HasTagID <- true // [YZK] bug fix at Dec 2021
 	}
 }
 
@@ -166,15 +168,15 @@ func ListPosts(page int) (postDicts []PostDict) {
 func GetPostById(postId int) (post PostDict) {
 	var p Post
 	DB.Where("id = ?", postId).First(&p)
-	var tagNames []string
+
+	post.Tags = make([]string, 0) // [YZK] fix bug
 	for _, t := range p.GetTags() {
-		tagNames = append(tagNames, t.Name)
+		post.Tags = append(post.Tags, t.Name)
 	}
 	post.Post = p
 	post.Author = p.GetAuthor()
 	post.Content = ""
 	post.Url = p.PostUrl()
-	post.Tags = tagNames
 	post.Content = p.GetProps("content").(string)
 	return
 }
@@ -230,7 +232,7 @@ func DeletePost(postID int) {
 }
 
 func CreateActivity(post *Post) {
-	url := "http://" + setting.PythonServerHost + ":" + setting.PythonServerPort + "/api/activity"
+	url := "http://localhost:" + setting.PythonServerPort + "/api/activity"
 	data := `{"post_id": %d, "user_id": %d}`
 	data = fmt.Sprintf(data, post.ID, post.AuthorID)
 	fmt.Println(data)

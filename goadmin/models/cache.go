@@ -3,7 +3,7 @@ package models
 import "fmt"
 
 var (
-	MC_KEY_TAGS_BY_POST_ID string = "post:%s:tags"
+	MC_KEY_TAGS_BY_POST_ID string = "post:%d:tags"
 	MC_KEY_RELATED         string = "post:related_posts:%d:limit:%d"
 	MC_KEY_POST_BY_SLUG    string = "post:%s:slug"
 	MC_KEY_ALL_POSTS       string = "core:posts:%s:v2"
@@ -40,6 +40,7 @@ func (post *Post) Flush() {
 		fmt.Sprintf(MC_KEY_RELATED, post.ID, 4),
 		fmt.Sprintf(MC_KEY_POST_BY_SLUG, post.Slug),
 		fmt.Sprintf(MC_KEY_ARCHIVE, postYear),
+		fmt.Sprintf(MC_KEY_TAGS_BY_POST_ID, post.ID),
 	}
 
 	for _, item := range []string{"False", "True"} {
