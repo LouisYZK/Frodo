@@ -80,8 +80,11 @@ Other verion could be fine as well (not tested!)
 debug = True
 author = yzk
 site_title = Zhikai-Yang Space
-host_path = 202.117.47.47:9080 ## alter this to your web port, like localhost for example
+host_path = localhost:9080 ## alter this to your web port, like localhost for example
 ```
+Note: the `host_path` in config file should be with ip:port
+
+
 The rest configuration is every service's port, if some port are not accessed, please modify the corresponding config in `nginx.conf`, `docker-compose.yml`.
 
 #### build images
@@ -92,6 +95,9 @@ cd Frodo
 sh build.sh
 ```
 There are two web images(python and golang) should be built for a while, if there are some errors about network, you can rebuild it.
+
+**Note: Raspberry Pi images' building**
+Raspberry Pi using linux/arm64, related docker-compose configuration are in `docker-compose-arm.yml`, some images that only can run on x86 should be replaced. Some bugs also fixed in arm64.
 
 #### Start
 ```
@@ -114,7 +120,7 @@ Please issue me if the errors are about the program itself!
 If start successfully, you should create an admin user firstly:
 
 ```
-docker exec -it $(docker ps | grep frodo/pyweb | awk '{print $1}') python manager.py adduser
+docker exec -it $(docker ps | grep frodo/pyweb | awk '{print $1}') python manage.py adduser
 ```
 confirm the usernam and password according to the hints
 
@@ -129,10 +135,11 @@ User's custome partial config is in `python_web/config.yaml`, modify it and it w
 #### Environment Test
 There are some os already testing without errors
 
-- [x] Ubuntu LTS 16.06
-- [x] MacOS Majave 15
+- [x] Ubuntu LTS 16.06 | x86_64
+- [x] MacOS Majave 15 | x86_64
+- [x] Raspberry 4b Debian 10 | arm64/v8 ...
 - [ ] Windows ...
-- [ ] Rowsberry ARM ...
+
 
 Welcom to deploy Frodo on your device!~ And issue me for any problems!~
 
