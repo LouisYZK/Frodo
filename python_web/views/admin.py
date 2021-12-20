@@ -99,38 +99,40 @@ The Status api in activity is still reserved.
 #                               avatar=avatar, active=active)
 #     rv = await modify_user(user)
 
-# @router.post('/upload')
-# async def upload(request: Request,
-#                  avatar: UploadFile=Form(None),
-#                  file: UploadFile=Form(None)):
-#     user = request.session.get('user', {})
-#     if not user:
-#         return {'msg': 'Auth required.'}
-#     if avatar is not None:
-#         file = avatar
-#         is_avarta = True
-#     else:
-#         is_avarta = False
+@router.post('/upload')
+async def upload(request: Request,
+                 avatar: UploadFile=Form(None),
+                 file: UploadFile=Form(None)):
+    user = request.session.get('user', {})
+    # [TODO] yzk
+    # 风险：因为admin验证接口在goadmin,无法在此处获取登录信息
+    # if not user:
+    #     return {'msg': 'Auth required.'}
+    if avatar is not None:
+        file = avatar
+        is_avarta = True
+    else:
+        is_avarta = False
 
-#     suffix = file.filename.split('.')[-1]
-#     fid = generate_id()
-#     filename = f'{fid}.{suffix}'
-#     uploaded_file = Path(config.UPLOAD_FOLDER) / filename
-#     content = await file.read()
-#     with open(uploaded_file, 'wb') as f:
-#         f.write(content)
-#     mime, _ = mimetypes.guess_type(str(uploaded_file))
-#     encoded = b''.join(base64.encodestring(content).splitlines()).decode()
+    suffix = file.filename.split('.')[-1]
+    fid = generate_id()
+    filename = f'{fid}.{suffix}'
+    uploaded_file = Path(config.UPLOAD_FOLDER) / filename
+    content = await file.read()
+    with open(uploaded_file, 'wb') as f:
+        f.write(content)
+    mime, _ = mimetypes.guess_type(str(uploaded_file))
+    encoded = b''.join(base64.encodestring(content).splitlines()).decode()
 
-#     if is_avarta:
-#         dct = {
-#             'files': {
-#                 'avatar': f'data:{mime};base64,{encoded}', 'avatar_path':  filename
-#             }
-#         }
-#     else:
-#         dct = {'r': 0, 'filename': filename}
-#     return dct
+    if is_avarta:
+        dct = {
+            'files': {
+                'avatar': f'data:{mime};base64,{encoded}', 'avatar_path':  filename
+            }
+        }
+    else:
+        dct = {'r': 0, 'filename': filename}
+    return dct
 
 
 # @router.get('/user/search', response_model=schemas.CommonResponse)
@@ -256,6 +258,7 @@ async def create_status(request: Request):
     if not user:
         return {'r': 0, 'msg': 'Auth required.'}
     data = await request.json()
+    print (">>>>>>>>>", data)
     obj, msg = await create_new_status(user.id, data)
     activity = None if not obj else await obj.to_full_dict()
     return {'r': not bool(obj), 'msg': msg, 'activity': activity}
