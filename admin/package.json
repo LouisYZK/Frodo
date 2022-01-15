@@ -13,7 +13,7 @@
     "element-ui": "2.4.5",
     "fuse.js": "^3.4.2",
     "lodash": "^4.17.15",
-    "marked": "^0.7.0",
+    "marked": "^4.0.10",
     "normalize.css": "^8.0.1",
     "qs": "^6.6.0",
     "screenfull": "^4.0.1",
