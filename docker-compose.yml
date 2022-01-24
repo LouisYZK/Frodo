@@ -2,12 +2,14 @@ version: '3'
 services:
   nginx:
     image: nginx
+    restart: always
     working_dir: /data/static
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./static:/data/static
+      # - ./cockpit_nginx.conf:/etc/nginx/conf.d/cockpit_nginx.conf
     ports:
-      - "9080:80"
+      - "8000:80"
     environment:
       - NGINX_PORT=80
     networks:
@@ -16,14 +18,14 @@ services:
       - frodo_python
       - frodo_golang
   mysql:
-    image: mysql
+    image: webhippie/mariadb
     restart: always
     environment:
-      MYSQL_DATABASE: 'fast_blog'
-      MYSQL_USER: 'root'
-      MYSQL_PASSWORD: ''
-      MYSQL_ROOT_PASSWORD: ''
-      MYSQL_ALLOW_EMPTY_PASSWORD: 'true'
+      - MARIADB_DATABASE=fast_blog
+      - MARIADB_USER=root
+      - MARIADB_PASSWORD=yangzhikai668
+      - MARIADB_ROOT_PASSWORD=yangzhikai668
+      - MARIADB_ALLOW_EMPTY_PASSWORD=false
     ports:
       - '3307:3306'
     volumes:
@@ -32,12 +34,18 @@ services:
       - app-network
   redis:
     image: redis:alpine
+    restart: always
     networks:
       - app-network
     ports:
       - '6378:6379'
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - /home/pi/redis_data:/data
+      - /home/Frodo/redis.conf:/usr/local/etc/redis/redis.conf
   frodo_python:
     image: frodo/pyweb:latest
+    restart: always
     networks:
       - app-network
     ports:
@@ -46,6 +54,7 @@ services:
       - '9004'
     volumes:
       - ./python_web:/app
+      - ./static:/code/app/static
     depends_on:
       - mysql
       - redis
@@ -54,6 +63,7 @@ services:
     command: 'uvicorn main:app --host 0.0.0.0 --port 9004'
   frodo_golang:
     image: frodo/goweb
+    restart: always
     ports:
       - '9003:9003'
     expose:
