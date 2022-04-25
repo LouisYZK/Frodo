@@ -1,4 +1,5 @@
 import ast
+import re
 import inspect
 import types
 from typing import Any, Callable
@@ -141,12 +142,36 @@ class BlogRenderer(mistune.Renderer, metaclass=PanguMeta):
 
     def link(self, link, title, text):
         return f' {super().link(link, title, text) } '
+    
+class MyInlineLexer(mistune.InlineLexer):
+    def enable_delete_em(self):
+        self.rules.double_emphasis = re.compile(
+            r'\*{2}([\s\S]+?)\*{2}(?!\*)'  # **word**
+        )
+        self.rules.emphasis = re.compile(
+            r'\@((?:\*\*|[^\*])+?)\@(?!\*)'  # @word@
+        )
+        self.default_rules.insert(3, 'double_emphasis')
+        self.default_rules.insert(3, 'emphasis')
 
+    def output_double_emphasis(self, m):
+        text = m.group(1)
+        return self.renderer.double_emphasis(text)
+
+    def output_emphasis(self, m):
+        text = m.group(1)
+        return self.renderer.emphasis(text)
 
 class TocRenderer(TocMixin, mistune.Renderer):
     ...
 
 renderer = BlogRenderer(linenos=False, inlinestyles=False)
+inline = MyInlineLexer(renderer)
+inline.enable_delete_em()
 toc = TocRenderer()
-markdown = mistune.Markdown(escape=True, renderer=renderer)
+markdown = mistune.Markdown(escape=True, renderer=renderer, inline=inline)
 toc_md = mistune.Markdown(renderer=toc)
+
+if __name__ == '__main__':
+    s = " A_i = A_{ik} "
+    print (markdown(s))

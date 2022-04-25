@@ -64,7 +64,7 @@ func (post *Post) GetAuthor() (user User) {
 	return
 }
 
-func (post *Post) SetProps(key string, value interface{}) {
+func (post *Post) SetProps(key string, value interface {}) {
 	key = post.PostUrl() + "/props/" + key
 	RedisClient.Set(key, value, 0)
 }

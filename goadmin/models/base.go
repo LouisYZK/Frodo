@@ -32,7 +32,7 @@ func init() {
 	password = setting.DbPwd
 	host = setting.DbHost + ":" + setting.DbPort
 
-	DB, _ = gorm.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local",
+	DB, err = gorm.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local",
 		user,
 		password,
 		host,
