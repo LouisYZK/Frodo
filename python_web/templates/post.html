@@ -112,19 +112,25 @@ ${ utils.render_comment_container(post, 10, github_user, liked_comment_ids) }
   <script src="${ request.url_for('static', path='js/github-widget.js')}"></script>
   <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
-      extensions: ["tex2jax.js"],
-      jax: ["input/TeX", "output/HTML-CSS"],
-      tex2jax: {
-        <!--$表示行内元素，$$表示块状元素 -->
-        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
-        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
-        processEscapes: true
-      },
-      "HTML-CSS": { availableFonts: ["TeX"] }
+        showProcessingMessages: false, //关闭js加载过程信息
+        messageStyle: "none", //不显示信息
+        extensions: ["tex2jax.js"],
+        jax: ["input/TeX", "output/HTML-CSS"],
+        tex2jax: {
+            inlineMath:  [ ["$", "$"] ], //行内公式选择$
+            displayMath: [ ["$$","$$"] ], //段内公式选择$$
+            skipTags: ['em', 'script', 'noscript', 'style', 'textarea', 'pre','code','a'], //避开某些标签
+            ignoreClass:"comment-content" //避开含该Class的标签
+        },
+        "HTML-CSS": {
+            availableFonts: ["STIX","TeX"], //可选字体
+            showMathMenu: false //关闭右击菜单显示
+        }
     });
-  </script>
+    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+    </script>
   <script type="text/javascript" async
-  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?...">
 </script>
 
 </%def>
