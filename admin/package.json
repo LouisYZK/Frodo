@@ -15,7 +15,7 @@
     "lodash": "^4.17.15",
     "marked": "^0.7.0",
     "normalize.css": "^8.0.1",
-    "qs": "^6.6.0",
+    "qs": "^6.9.7",
     "screenfull": "^4.0.1",
     "vue": "^2.6.10",
     "vue-class-component": "^7.0.1",
